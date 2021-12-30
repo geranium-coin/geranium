@@ -27,7 +27,7 @@ Use at own Risk: In development! <br>
 Created by Manomay Mane,
 Enjoy
 
-main branch is the 1st branch.
+
 License
 -------
 
@@ -40,6 +40,8 @@ Development Process
 The `master` branch is regularly built (see `doc/build-*.md` for instructions) and tested, but it is not guaranteed to be
 completely stable. [Tags](https://github.com/geranium/geranium/tags) are created
 regularly from release branches to indicate new official, stable release versions of Geranium Core.
+
+The main branch is the first or Genesis branch.
 
 The https://github.com/geranium-core/gui repository is used exclusively for the
 development of the GUI. Its master branch is identical in all monotree
