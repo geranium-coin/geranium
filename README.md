@@ -27,6 +27,7 @@ Use at own Risk: In development! <br>
 Created by Manomay Mane,
 Enjoy
 
+main branch is the 1st branch.
 License
 -------
 
