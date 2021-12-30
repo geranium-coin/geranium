@@ -1,12 +1,6 @@
 Geranium Core integration/staging tree
 =====================================
 
-https://geraniumcore.org
-
-For an immediately usable, binary version of the Geranium Core software, see
-https://geraniumcore.org/en/download/.
-
-Further information about Geranium Core is available in the [doc folder](/doc).
 
 What is Geranium?
 ----------------
