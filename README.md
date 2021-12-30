@@ -1,23 +1,31 @@
 Geranium Core integration/staging tree
 =====================================
 
-https://geraniumcore.org
 
-For an immediately usable, binary version of the Geranium Core software, see
-https://geraniumcore.org/en/download/.
+
 
 Further information about Geranium Core is available in the [doc folder](/doc).
 
 What is Geranium?
 ----------------
 
-Geranium is an experimental digital currency that enables instant payments to
+Geranium is an Decentralized crypto Asset/Currency,  that enables instant payments to
 anyone, anywhere in the world. Geranium uses peer-to-peer technology to operate
 with no central authority: managing transactions and issuing money are carried
 out collectively by the network. Geranium Core is the name of open source
 software which enables the use of this currency.
 
-For more information read the original Geranium whitepaper.
+More info:
+Algorithm           : SHA256  <br>
+Max supply          : 100 crore <br>
+Circulating Supply  : 25 cr (subsidy halving= 1 crore blocks) <br>
+Block Reward        : 25 coins perblock <br>
+Block time          : 24s to 25s <br>
+Difficulty Retarget : 77 hrs <br>
+
+Use at own Risk: In development! <br>
+Created by Manomay Mane,
+Enjoy
 
 License
 -------
@@ -39,12 +47,12 @@ that repository unless it is for development reasons.
 
 The contribution workflow is described in [CONTRIBUTING.md](CONTRIBUTING.md)
 and useful hints for developers can be found in [doc/developer-notes.md](doc/developer-notes.md).
+Anyone can help to develop the project!
 
 Testing
 -------
 
-Testing and code review is the bottleneck for development; we get more pull
-requests than we can review and test on short notice. Please be patient and help out by testing
+Testing and code review is the bottleneck for development;. Please be patient and help out by testing
 other people's pull requests, and remember this is a security-critical project where any mistake might cost people
 lots of money.
 
