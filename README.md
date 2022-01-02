@@ -18,7 +18,7 @@ software which enables the use of this currency.
 More info:
 Algorithm           : SHA256  <br>
 Max supply          : 100 crore <br>
-Circulating Supply  : 25 cr (subsidy halving= 1 crore blocks) <br>
+Subsidy halving.    : subsidy halving= 1 crore blocks <br>
 Block Reward        : 25 coins perblock <br>
 Block time          : 24s to 25s <br>
 Difficulty Retarget : 77 hrs <br>
