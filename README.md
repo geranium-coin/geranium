@@ -12,9 +12,6 @@ with no central authority: managing transactions and issuing money are carried
 out collectively by the network. Geranium Core is the name of open source
 software which enables the use of this currency.
 
-For more information, as well as an immediately usable, binary version of
-the Geranium Core software, see https://bitcoincore.org/en/download/, or read the
-[original whitepaper](https://bitcoincore.org/bitcoin.pdf).
 
 License
 -------
