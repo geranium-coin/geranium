@@ -1,7 +1,7 @@
 Geranium Core integration/staging tree
 =====================================
 
-https://bitcoincore.org
+
 
 What is Geranium?
 ----------------
@@ -14,7 +14,7 @@ software which enables the use of this currency.
 
 For more information, as well as an immediately usable, binary version of
 the Geranium Core software, see https://bitcoincore.org/en/download/, or read the
-[original whitepaper](https://bitcoincore.org/geranium.pdf).
+[original whitepaper](https://bitcoincore.org/bitcoin.pdf).
 
 License
 -------
