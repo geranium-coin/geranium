@@ -2,17 +2,12 @@
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
-# Pattern rule to print variables, e.g. make print-top_srcdir
-print-%: FORCE
-	@echo '$*'='$($*)'
-
 DIST_SUBDIRS = secp256k1 univalue
 
-AM_LDFLAGS = $(LIBTOOL_LDFLAGS) $(HARDENED_LDFLAGS) $(GPROF_LDFLAGS) $(SANITIZER_LDFLAGS)
+AM_LDFLAGS = $(PTHREAD_CFLAGS) $(LIBTOOL_LDFLAGS) $(HARDENED_LDFLAGS) $(GPROF_LDFLAGS) $(SANITIZER_LDFLAGS)
 AM_CXXFLAGS = $(DEBUG_CXXFLAGS) $(HARDENED_CXXFLAGS) $(WARN_CXXFLAGS) $(NOWARN_CXXFLAGS) $(ERROR_CXXFLAGS) $(GPROF_CXXFLAGS) $(SANITIZER_CXXFLAGS)
 AM_CPPFLAGS = $(DEBUG_CPPFLAGS) $(HARDENED_CPPFLAGS)
 AM_LIBTOOLFLAGS = --preserve-dup-deps
-PTHREAD_FLAGS = $(PTHREAD_CFLAGS) $(PTHREAD_LIBS)
 EXTRA_LIBRARIES =
 
 if EMBEDDED_UNIVALUE
@@ -24,8 +19,9 @@ else
 LIBUNIVALUE = $(UNIVALUE_LIBS)
 endif
 
-GERANIUM_INCLUDES=-I$(builddir) -I$(srcdir)/secp256k1/include $(BDB_CPPFLAGS) $(BOOST_CPPFLAGS) $(LEVELDB_CPPFLAGS)
+GERANIUM_INCLUDES=-I$(builddir) $(BDB_CPPFLAGS) $(BOOST_CPPFLAGS) $(LEVELDB_CPPFLAGS)
 
+GERANIUM_INCLUDES += -I$(srcdir)/secp256k1/include
 GERANIUM_INCLUDES += $(UNIVALUE_CFLAGS)
 
 LIBGERANIUM_SERVER=libgeranium_server.a
@@ -74,7 +70,6 @@ EXTRA_LIBRARIES += \
   $(LIBGERANIUM_CONSENSUS) \
   $(LIBGERANIUM_SERVER) \
   $(LIBGERANIUM_CLI) \
-  $(LIBGERANIUM_IPC) \
   $(LIBGERANIUM_WALLET) \
   $(LIBGERANIUM_WALLET_TOOL) \
   $(LIBGERANIUM_ZMQ)
@@ -90,26 +85,16 @@ if BUILD_GERANIUMD
   bin_PROGRAMS += geraniumd
 endif
 
-if BUILD_GERANIUM_NODE
-  bin_PROGRAMS += geranium-node
-endif
-
 if BUILD_GERANIUM_CLI
   bin_PROGRAMS += geranium-cli
 endif
-
 if BUILD_GERANIUM_TX
   bin_PROGRAMS += geranium-tx
 endif
-
 if ENABLE_WALLET
 if BUILD_GERANIUM_WALLET
   bin_PROGRAMS += geranium-wallet
 endif
-endif
-
-if BUILD_GERANIUM_UTIL
-  bin_PROGRAMS += geranium-util
 endif
 
 .PHONY: FORCE check-symbols check-security
@@ -121,9 +106,9 @@ GERANIUM_CORE_H = \
   banman.h \
   base58.h \
   bech32.h \
+  bloom.h \
   blockencodings.h \
   blockfilter.h \
-  bloom.h \
   chain.h \
   chainparams.h \
   chainparamsbase.h \
@@ -144,35 +129,25 @@ GERANIUM_CORE_H = \
   core_io.h \
   core_memusage.h \
   cuckoocache.h \
-  dbwrapper.h \
-  deploymentinfo.h \
-  deploymentstatus.h \
-  external_signer.h \
   flatfile.h \
   fs.h \
   httprpc.h \
   httpserver.h \
-  i2p.h \
   index/base.h \
   index/blockfilterindex.h \
-  index/coinstatsindex.h \
-  index/disktxpos.h \
   index/txindex.h \
   indirectmap.h \
   init.h \
-  init/common.h \
   interfaces/chain.h \
-  interfaces/echo.h \
   interfaces/handler.h \
-  interfaces/init.h \
-  interfaces/ipc.h \
   interfaces/node.h \
   interfaces/wallet.h \
   key.h \
   key_io.h \
+  dbwrapper.h \
+  limitedmap.h \
   logging.h \
   logging/timer.h \
-  mapport.h \
   memusage.h \
   merkleblock.h \
   miner.h \
@@ -183,19 +158,17 @@ GERANIUM_CORE_H = \
   netaddress.h \
   netbase.h \
   netmessagemaker.h \
-  node/blockstorage.h \
   node/coin.h \
   node/coinstats.h \
   node/context.h \
   node/psbt.h \
   node/transaction.h \
-  node/ui_interface.h \
   node/utxo_snapshot.h \
   noui.h \
+  optional.h \
   outputtype.h \
   policy/feerate.h \
   policy/fees.h \
-  policy/packages.h \
   policy/policy.h \
   policy/rbf.h \
   policy/settings.h \
@@ -207,8 +180,6 @@ GERANIUM_CORE_H = \
   reverse_iterator.h \
   rpc/blockchain.h \
   rpc/client.h \
-  rpc/mining.h \
-  rpc/net.h \
   rpc/protocol.h \
   rpc/rawtransaction_util.h \
   rpc/register.h \
@@ -223,7 +194,6 @@ GERANIUM_CORE_H = \
   script/signingprovider.h \
   script/standard.h \
   shutdown.h \
-  signet.h \
   streams.h \
   support/allocators/secure.h \
   support/allocators/zeroafterfree.h \
@@ -231,79 +201,59 @@ GERANIUM_CORE_H = \
   support/events.h \
   support/lockedpool.h \
   sync.h \
-  threadinterrupt.h \
   threadsafety.h \
+  threadinterrupt.h \
   timedata.h \
   torcontrol.h \
   txdb.h \
   txmempool.h \
-  txorphanage.h \
-  txrequest.h \
+  ui_interface.h \
   undo.h \
   util/asmap.h \
   util/bip32.h \
   util/bytevectorhash.h \
   util/check.h \
-  util/epochguard.h \
   util/error.h \
   util/fees.h \
-  util/getuniquepath.h \
-  util/golombrice.h \
-  util/hash_type.h \
-  util/hasher.h \
+  util/spanparsing.h \
+  util/system.h \
   util/macros.h \
+  util/memory.h \
   util/message.h \
   util/moneystr.h \
   util/rbf.h \
-  util/readwritefile.h \
-  util/serfloat.h \
   util/settings.h \
-  util/sock.h \
-  util/spanparsing.h \
   util/string.h \
-  util/system.h \
-  util/thread.h \
   util/threadnames.h \
   util/time.h \
-  util/tokenpipe.h \
-  util/trace.h \
   util/translation.h \
-  util/ui_change_type.h \
   util/url.h \
   util/vector.h \
   validation.h \
   validationinterface.h \
   versionbits.h \
-  wallet/bdb.h \
+  versionbitsinfo.h \
+  walletinitinterface.h \
   wallet/coincontrol.h \
-  wallet/coinselection.h \
-  wallet/context.h \
   wallet/crypter.h \
   wallet/db.h \
-  wallet/dump.h \
-  wallet/external_signer_scriptpubkeyman.h \
   wallet/feebumper.h \
   wallet/fees.h \
   wallet/ismine.h \
   wallet/load.h \
-  wallet/receive.h \
   wallet/rpcwallet.h \
-  wallet/salvage.h \
   wallet/scriptpubkeyman.h \
-  wallet/spend.h \
-  wallet/sqlite.h \
-  wallet/transaction.h \
   wallet/wallet.h \
   wallet/walletdb.h \
   wallet/wallettool.h \
   wallet/walletutil.h \
-  walletinitinterface.h \
+  wallet/coinselection.h \
   warnings.h \
   zmq/zmqabstractnotifier.h \
+  zmq/zmqconfig.h\
   zmq/zmqnotificationinterface.h \
   zmq/zmqpublishnotifier.h \
-  zmq/zmqrpc.h \
-  zmq/zmqutil.h
+  zmq/zmqrpc.h
 
 
 obj/build.h: FORCE
@@ -312,13 +262,11 @@ obj/build.h: FORCE
 	  "$(abs_top_srcdir)"
 libgeranium_util_a-clientversion.$(OBJEXT): obj/build.h
 
-ipc/capnp/libgeranium_ipc_a-ipc.$(OBJEXT): $(libgeranium_ipc_mpgen_input:=.h)
-
 # server: shared between geraniumd and geranium-qt
 # Contains code accessing mempool and chain state that is meant to be separated
 # from wallet and gui code (see node/README.md). Shared code should go in
 # libgeranium_common or libgeranium_util libraries, instead.
-libgeranium_server_a_CPPFLAGS = $(AM_CPPFLAGS) $(GERANIUM_INCLUDES) $(MINIUPNPC_CPPFLAGS) $(NATPMP_CPPFLAGS) $(EVENT_CFLAGS) $(EVENT_PTHREADS_CFLAGS)
+libgeranium_server_a_CPPFLAGS = $(AM_CPPFLAGS) $(GERANIUM_INCLUDES) $(MINIUPNPC_CPPFLAGS) $(EVENT_CFLAGS) $(EVENT_PTHREADS_CFLAGS)
 libgeranium_server_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
 libgeranium_server_a_SOURCES = \
   addrdb.cpp \
@@ -328,32 +276,26 @@ libgeranium_server_a_SOURCES = \
   blockfilter.cpp \
   chain.cpp \
   consensus/tx_verify.cpp \
-  dbwrapper.cpp \
-  deploymentstatus.cpp \
   flatfile.cpp \
   httprpc.cpp \
   httpserver.cpp \
-  i2p.cpp \
   index/base.cpp \
   index/blockfilterindex.cpp \
-  index/coinstatsindex.cpp \
   index/txindex.cpp \
+  interfaces/chain.cpp \
+  interfaces/node.cpp \
   init.cpp \
-  mapport.cpp \
+  dbwrapper.cpp \
   miner.cpp \
   net.cpp \
   net_processing.cpp \
-  node/blockstorage.cpp \
   node/coin.cpp \
   node/coinstats.cpp \
   node/context.cpp \
-  node/interfaces.cpp \
   node/psbt.cpp \
   node/transaction.cpp \
-  node/ui_interface.cpp \
   noui.cpp \
   policy/fees.cpp \
-  policy/packages.cpp \
   policy/rbf.cpp \
   policy/settings.cpp \
   pow.cpp \
@@ -366,13 +308,11 @@ libgeranium_server_a_SOURCES = \
   rpc/server.cpp \
   script/sigcache.cpp \
   shutdown.cpp \
-  signet.cpp \
   timedata.cpp \
   torcontrol.cpp \
   txdb.cpp \
   txmempool.cpp \
-  txorphanage.cpp \
-  txrequest.cpp \
+  ui_interface.cpp \
   validation.cpp \
   validationinterface.cpp \
   versionbits.cpp \
@@ -392,44 +332,30 @@ libgeranium_zmq_a_SOURCES = \
   zmq/zmqabstractnotifier.cpp \
   zmq/zmqnotificationinterface.cpp \
   zmq/zmqpublishnotifier.cpp \
-  zmq/zmqrpc.cpp \
-  zmq/zmqutil.cpp
+  zmq/zmqrpc.cpp
 endif
 
 
 # wallet: shared between geraniumd and geranium-qt, but only linked
 # when wallet enabled
-libgeranium_wallet_a_CPPFLAGS = $(AM_CPPFLAGS) $(GERANIUM_INCLUDES) $(SQLITE_CFLAGS)
+libgeranium_wallet_a_CPPFLAGS = $(AM_CPPFLAGS) $(GERANIUM_INCLUDES)
 libgeranium_wallet_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
 libgeranium_wallet_a_SOURCES = \
+  interfaces/wallet.cpp \
   wallet/coincontrol.cpp \
-  wallet/context.cpp \
   wallet/crypter.cpp \
   wallet/db.cpp \
-  wallet/dump.cpp \
-  wallet/external_signer_scriptpubkeyman.cpp \
   wallet/feebumper.cpp \
   wallet/fees.cpp \
-  wallet/interfaces.cpp \
   wallet/load.cpp \
-  wallet/receive.cpp \
   wallet/rpcdump.cpp \
   wallet/rpcwallet.cpp \
   wallet/scriptpubkeyman.cpp \
-  wallet/spend.cpp \
-  wallet/transaction.cpp \
   wallet/wallet.cpp \
   wallet/walletdb.cpp \
   wallet/walletutil.cpp \
   wallet/coinselection.cpp \
   $(GERANIUM_CORE_H)
-
-if USE_SQLITE
-libgeranium_wallet_a_SOURCES += wallet/sqlite.cpp
-endif
-if USE_BDB
-libgeranium_wallet_a_SOURCES += wallet/bdb.cpp wallet/salvage.cpp
-endif
 
 libgeranium_wallet_tool_a_CPPFLAGS = $(AM_CPPFLAGS) $(GERANIUM_INCLUDES)
 libgeranium_wallet_tool_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
@@ -456,16 +382,12 @@ crypto_libgeranium_crypto_base_a_SOURCES = \
   crypto/hmac_sha512.h \
   crypto/poly1305.h \
   crypto/poly1305.cpp \
-  crypto/muhash.h \
-  crypto/muhash.cpp \
   crypto/ripemd160.cpp \
   crypto/ripemd160.h \
   crypto/sha1.cpp \
   crypto/sha1.h \
   crypto/sha256.cpp \
   crypto/sha256.h \
-  crypto/sha3.cpp \
-  crypto/sha3.h \
   crypto/sha512.cpp \
   crypto/sha512.h \
   crypto/siphash.cpp \
@@ -542,9 +464,6 @@ libgeranium_common_a_SOURCES = \
   compressor.cpp \
   core_read.cpp \
   core_write.cpp \
-  deploymentinfo.cpp \
-  external_signer.cpp \
-  init/common.cpp \
   key.cpp \
   key_io.cpp \
   merkleblock.cpp \
@@ -557,13 +476,13 @@ libgeranium_common_a_SOURCES = \
   protocol.cpp \
   psbt.cpp \
   rpc/rawtransaction_util.cpp \
-  rpc/external_signer.cpp \
   rpc/util.cpp \
   scheduler.cpp \
   script/descriptor.cpp \
   script/sign.cpp \
   script/signingprovider.cpp \
   script/standard.cpp \
+  versionbitsinfo.cpp \
   warnings.cpp \
   $(GERANIUM_CORE_H)
 
@@ -576,12 +495,12 @@ libgeranium_util_a_SOURCES = \
   support/lockedpool.cpp \
   chainparamsbase.cpp \
   clientversion.cpp \
+  compat/glibc_sanity_fdelt.cpp \
+  compat/glibc_sanity.cpp \
   compat/glibcxx_sanity.cpp \
   compat/strnlen.cpp \
   fs.cpp \
-  interfaces/echo.cpp \
   interfaces/handler.cpp \
-  interfaces/init.cpp \
   logging.cpp \
   random.cpp \
   randomenv.cpp \
@@ -594,28 +513,18 @@ libgeranium_util_a_SOURCES = \
   util/bytevectorhash.cpp \
   util/error.cpp \
   util/fees.cpp \
-  util/getuniquepath.cpp \
-  util/hasher.cpp \
-  util/sock.cpp \
   util/system.cpp \
   util/message.cpp \
   util/moneystr.cpp \
   util/rbf.cpp \
-  util/readwritefile.cpp \
   util/settings.cpp \
-  util/thread.cpp \
   util/threadnames.cpp \
-  util/serfloat.cpp \
   util/spanparsing.cpp \
   util/strencodings.cpp \
   util/string.cpp \
   util/time.cpp \
-  util/tokenpipe.cpp \
+  util/url.cpp \
   $(GERANIUM_CORE_H)
-
-if USE_LIBEVENT
-libgeranium_util_a_SOURCES += util/url.cpp
-endif
 
 if GLIBC_BACK_COMPAT
 libgeranium_util_a_SOURCES += compat/glibc_compat.cpp
@@ -634,21 +543,22 @@ libgeranium_cli_a_SOURCES = \
 nodist_libgeranium_util_a_SOURCES = $(srcdir)/obj/build.h
 #
 
-# geraniumd & geranium-node binaries #
-geranium_daemon_sources = geraniumd.cpp
-geranium_bin_cppflags = $(AM_CPPFLAGS) $(GERANIUM_INCLUDES)
-geranium_bin_cxxflags = $(AM_CXXFLAGS) $(PIE_FLAGS)
-geranium_bin_ldflags = $(RELDFLAGS) $(AM_LDFLAGS) $(LIBTOOL_APP_LDFLAGS) $(PTHREAD_FLAGS)
+# geraniumd binary #
+geraniumd_SOURCES = geraniumd.cpp
+geraniumd_CPPFLAGS = $(AM_CPPFLAGS) $(GERANIUM_INCLUDES)
+geraniumd_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
+geraniumd_LDFLAGS = $(RELDFLAGS) $(AM_LDFLAGS) $(LIBTOOL_APP_LDFLAGS)
 
 if TARGET_WINDOWS
-geranium_daemon_sources += geraniumd-res.rc
+geraniumd_SOURCES += geraniumd-res.rc
 endif
 
-geranium_bin_ldadd = \
+geraniumd_LDADD = \
+  $(LIBGERANIUM_SERVER) \
   $(LIBGERANIUM_WALLET) \
   $(LIBGERANIUM_COMMON) \
-  $(LIBGERANIUM_UTIL) \
   $(LIBUNIVALUE) \
+  $(LIBGERANIUM_UTIL) \
   $(LIBGERANIUM_ZMQ) \
   $(LIBGERANIUM_CONSENSUS) \
   $(LIBGERANIUM_CRYPTO) \
@@ -657,25 +567,13 @@ geranium_bin_ldadd = \
   $(LIBMEMENV) \
   $(LIBSECP256K1)
 
-geranium_bin_ldadd += $(BOOST_LIBS) $(BDB_LIBS) $(MINIUPNPC_LIBS) $(NATPMP_LIBS) $(EVENT_PTHREADS_LIBS) $(EVENT_LIBS) $(ZMQ_LIBS) $(SQLITE_LIBS)
-
-geraniumd_SOURCES = $(geranium_daemon_sources) init/geraniumd.cpp
-geraniumd_CPPFLAGS = $(geranium_bin_cppflags)
-geraniumd_CXXFLAGS = $(geranium_bin_cxxflags)
-geraniumd_LDFLAGS = $(geranium_bin_ldflags)
-geraniumd_LDADD = $(LIBGERANIUM_SERVER) $(geranium_bin_ldadd)
-
-geranium_node_SOURCES = $(geranium_daemon_sources) init/geranium-node.cpp
-geranium_node_CPPFLAGS = $(geranium_bin_cppflags)
-geranium_node_CXXFLAGS = $(geranium_bin_cxxflags)
-geranium_node_LDFLAGS = $(geranium_bin_ldflags)
-geranium_node_LDADD = $(LIBGERANIUM_SERVER) $(geranium_bin_ldadd) $(LIBGERANIUM_IPC) $(LIBMULTIPROCESS_LIBS)
+geraniumd_LDADD += $(BOOST_LIBS) $(BDB_LIBS) $(MINIUPNPC_LIBS) $(EVENT_PTHREADS_LIBS) $(EVENT_LIBS) $(ZMQ_LIBS)
 
 # geranium-cli binary #
 geranium_cli_SOURCES = geranium-cli.cpp
 geranium_cli_CPPFLAGS = $(AM_CPPFLAGS) $(GERANIUM_INCLUDES) $(EVENT_CFLAGS)
 geranium_cli_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
-geranium_cli_LDFLAGS = $(RELDFLAGS) $(AM_LDFLAGS) $(LIBTOOL_APP_LDFLAGS) $(PTHREAD_FLAGS)
+geranium_cli_LDFLAGS = $(RELDFLAGS) $(AM_LDFLAGS) $(LIBTOOL_APP_LDFLAGS)
 
 if TARGET_WINDOWS
 geranium_cli_SOURCES += geranium-cli-res.rc
@@ -694,7 +592,7 @@ geranium_cli_LDADD += $(BOOST_LIBS) $(EVENT_LIBS)
 geranium_tx_SOURCES = geranium-tx.cpp
 geranium_tx_CPPFLAGS = $(AM_CPPFLAGS) $(GERANIUM_INCLUDES)
 geranium_tx_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
-geranium_tx_LDFLAGS = $(RELDFLAGS) $(AM_LDFLAGS) $(LIBTOOL_APP_LDFLAGS) $(PTHREAD_FLAGS)
+geranium_tx_LDFLAGS = $(RELDFLAGS) $(AM_LDFLAGS) $(LIBTOOL_APP_LDFLAGS)
 
 if TARGET_WINDOWS
 geranium_tx_SOURCES += geranium-tx-res.rc
@@ -713,35 +611,29 @@ geranium_tx_LDADD += $(BOOST_LIBS)
 
 # geranium-wallet binary #
 geranium_wallet_SOURCES = geranium-wallet.cpp
-geranium_wallet_CPPFLAGS = $(geranium_bin_cppflags)
-geranium_wallet_CXXFLAGS = $(geranium_bin_cxxflags)
-geranium_wallet_LDFLAGS = $(geranium_bin_ldflags)
-geranium_wallet_LDADD = $(LIBGERANIUM_WALLET_TOOL) $(geranium_bin_ldadd)
+geranium_wallet_CPPFLAGS = $(AM_CPPFLAGS) $(GERANIUM_INCLUDES)
+geranium_wallet_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
+geranium_wallet_LDFLAGS = $(RELDFLAGS) $(AM_LDFLAGS) $(LIBTOOL_APP_LDFLAGS)
 
 if TARGET_WINDOWS
 geranium_wallet_SOURCES += geranium-wallet-res.rc
 endif
-#
 
-# geranium-util binary #
-geranium_util_SOURCES = geranium-util.cpp
-geranium_util_CPPFLAGS = $(AM_CPPFLAGS) $(GERANIUM_INCLUDES)
-geranium_util_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS)
-geranium_util_LDFLAGS = $(RELDFLAGS) $(AM_LDFLAGS) $(LIBTOOL_APP_LDFLAGS) $(PTHREAD_FLAGS)
-
-if TARGET_WINDOWS
-geranium_util_SOURCES += geranium-util-res.rc
-endif
-
-geranium_util_LDADD = \
+geranium_wallet_LDADD = \
+  $(LIBGERANIUM_WALLET_TOOL) \
+  $(LIBGERANIUM_WALLET) \
   $(LIBGERANIUM_COMMON) \
-  $(LIBGERANIUM_UTIL) \
-  $(LIBUNIVALUE) \
   $(LIBGERANIUM_CONSENSUS) \
+  $(LIBGERANIUM_UTIL) \
   $(LIBGERANIUM_CRYPTO) \
-  $(LIBSECP256K1)
+  $(LIBGERANIUM_ZMQ) \
+  $(LIBLEVELDB) \
+  $(LIBLEVELDB_SSE42) \
+  $(LIBMEMENV) \
+  $(LIBSECP256K1) \
+  $(LIBUNIVALUE)
 
-geranium_util_LDADD += $(BOOST_LIBS)
+geranium_wallet_LDADD += $(BOOST_LIBS) $(BDB_LIBS) $(EVENT_PTHREADS_LIBS) $(EVENT_LIBS) $(MINIUPNPC_LIBS) $(ZMQ_LIBS)
 #
 
 # geraniumconsensus library #
@@ -772,18 +664,12 @@ CLEANFILES = $(EXTRA_LIBRARIES)
 CLEANFILES += *.gcda *.gcno
 CLEANFILES += compat/*.gcda compat/*.gcno
 CLEANFILES += consensus/*.gcda consensus/*.gcno
-CLEANFILES += crc32c/src/*.gcda crc32c/src/*.gcno
 CLEANFILES += crypto/*.gcda crypto/*.gcno
-CLEANFILES += index/*.gcda index/*.gcno
-CLEANFILES += interfaces/*.gcda interfaces/*.gcno
-CLEANFILES += node/*.gcda node/*.gcno
 CLEANFILES += policy/*.gcda policy/*.gcno
 CLEANFILES += primitives/*.gcda primitives/*.gcno
-CLEANFILES += rpc/*.gcda rpc/*.gcno
 CLEANFILES += script/*.gcda script/*.gcno
 CLEANFILES += support/*.gcda support/*.gcno
 CLEANFILES += univalue/*.gcda univalue/*.gcno
-CLEANFILES += util/*.gcda util/*.gcno
 CLEANFILES += wallet/*.gcda wallet/*.gcno
 CLEANFILES += wallet/test/*.gcda wallet/test/*.gcno
 CLEANFILES += zmq/*.gcda zmq/*.gcno
@@ -814,56 +700,23 @@ clean-local:
 check-symbols: $(bin_PROGRAMS)
 if TARGET_DARWIN
 	@echo "Checking macOS dynamic libraries..."
-	$(AM_V_at) $(PYTHON) $(top_srcdir)/contrib/devtools/symbol-check.py $(bin_PROGRAMS)
+	$(AM_V_at) OTOOL=$(OTOOL) $(PYTHON) $(top_srcdir)/contrib/devtools/symbol-check.py $(bin_PROGRAMS)
 endif
 
 if TARGET_WINDOWS
 	@echo "Checking Windows dynamic libraries..."
-	$(AM_V_at) $(PYTHON) $(top_srcdir)/contrib/devtools/symbol-check.py $(bin_PROGRAMS)
+	$(AM_V_at) OBJDUMP=$(OBJDUMP) $(PYTHON) $(top_srcdir)/contrib/devtools/symbol-check.py $(bin_PROGRAMS)
 endif
 
-if TARGET_LINUX
+if GLIBC_BACK_COMPAT
 	@echo "Checking glibc back compat..."
-	$(AM_V_at) CPPFILT='$(CPPFILT)' $(PYTHON) $(top_srcdir)/contrib/devtools/symbol-check.py $(bin_PROGRAMS)
+	$(AM_V_at) READELF=$(READELF) CPPFILT=$(CPPFILT) $(PYTHON) $(top_srcdir)/contrib/devtools/symbol-check.py $(bin_PROGRAMS)
 endif
 
 check-security: $(bin_PROGRAMS)
 if HARDEN
 	@echo "Checking binary security..."
-	$(AM_V_at) $(PYTHON) $(top_srcdir)/contrib/devtools/security-check.py $(bin_PROGRAMS)
-endif
-
-libgeranium_ipc_mpgen_input = \
-  ipc/capnp/echo.capnp \
-  ipc/capnp/init.capnp
-EXTRA_DIST += $(libgeranium_ipc_mpgen_input)
-%.capnp:
-
-if BUILD_MULTIPROCESS
-LIBGERANIUM_IPC=libgeranium_ipc.a
-libgeranium_ipc_a_SOURCES = \
-  ipc/capnp/init-types.h \
-  ipc/capnp/protocol.cpp \
-  ipc/capnp/protocol.h \
-  ipc/exception.h \
-  ipc/interfaces.cpp \
-  ipc/process.cpp \
-  ipc/process.h \
-  ipc/protocol.h
-libgeranium_ipc_a_CPPFLAGS = $(AM_CPPFLAGS) $(GERANIUM_INCLUDES)
-libgeranium_ipc_a_CXXFLAGS = $(AM_CXXFLAGS) $(PIE_FLAGS) $(LIBMULTIPROCESS_CFLAGS)
-
-include $(MPGEN_PREFIX)/include/mpgen.mk
-libgeranium_ipc_mpgen_output = \
-  $(libgeranium_ipc_mpgen_input:=.c++) \
-  $(libgeranium_ipc_mpgen_input:=.h) \
-  $(libgeranium_ipc_mpgen_input:=.proxy-client.c++) \
-  $(libgeranium_ipc_mpgen_input:=.proxy-server.c++) \
-  $(libgeranium_ipc_mpgen_input:=.proxy-types.c++) \
-  $(libgeranium_ipc_mpgen_input:=.proxy-types.h) \
-  $(libgeranium_ipc_mpgen_input:=.proxy.h)
-nodist_libgeranium_ipc_a_SOURCES = $(libgeranium_ipc_mpgen_output)
-CLEANFILES += $(libgeranium_ipc_mpgen_output)
+	$(AM_V_at) READELF=$(READELF) OBJDUMP=$(OBJDUMP) OTOOL=$(OTOOL) $(PYTHON) $(top_srcdir)/contrib/devtools/security-check.py $(bin_PROGRAMS)
 endif
 
 if EMBEDDED_LEVELDB

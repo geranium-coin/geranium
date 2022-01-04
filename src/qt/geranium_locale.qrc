@@ -1,12 +1,16 @@
 <!DOCTYPE RCC><RCC version="1.0">
     <qresource prefix="/translations">
+        <file alias="ach">locale/geranium_ach.qm</file>
+        <file alias="af">locale/geranium_af.qm</file>
         <file alias="am">locale/geranium_am.qm</file>
         <file alias="ar">locale/geranium_ar.qm</file>
         <file alias="az">locale/geranium_az.qm</file>
         <file alias="be">locale/geranium_be.qm</file>
         <file alias="bg">locale/geranium_bg.qm</file>
+        <file alias="bn">locale/geranium_bn.qm</file>
         <file alias="bs">locale/geranium_bs.qm</file>
         <file alias="ca">locale/geranium_ca.qm</file>
+        <file alias="cmn">locale/geranium_cmn.qm</file>
         <file alias="cs">locale/geranium_cs.qm</file>
         <file alias="cy">locale/geranium_cy.qm</file>
         <file alias="da">locale/geranium_da.qm</file>
@@ -28,10 +32,10 @@
         <file alias="fr">locale/geranium_fr.qm</file>
         <file alias="ga">locale/geranium_ga.qm</file>
         <file alias="gd">locale/geranium_gd.qm</file>
-        <file alias="gl">locale/geranium_gl.qm</file>
         <file alias="gl_ES">locale/geranium_gl_ES.qm</file>
         <file alias="gu">locale/geranium_gu.qm</file>
         <file alias="he">locale/geranium_he.qm</file>
+        <file alias="hi">locale/geranium_hi.qm</file>
         <file alias="hr">locale/geranium_hr.qm</file>
         <file alias="hu">locale/geranium_hu.qm</file>
         <file alias="id">locale/geranium_id.qm</file>
@@ -67,6 +71,7 @@
         <file alias="sc">locale/geranium_sc.qm</file>
         <file alias="si">locale/geranium_si.qm</file>
         <file alias="sk">locale/geranium_sk.qm</file>
+        <file alias="sl">locale/geranium_sl.qm</file>
         <file alias="sn">locale/geranium_sn.qm</file>
         <file alias="sq">locale/geranium_sq.qm</file>
         <file alias="sr">locale/geranium_sr.qm</file>
@@ -89,5 +94,6 @@
         <file alias="zh_CN">locale/geranium_zh_CN.qm</file>
         <file alias="zh_HK">locale/geranium_zh_HK.qm</file>
         <file alias="zh_TW">locale/geranium_zh_TW.qm</file>
+        <file alias="zu">locale/geranium_zu.qm</file>
     </qresource>
 </RCC>

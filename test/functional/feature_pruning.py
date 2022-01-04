@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright (c) 2014-2020 The Geranium Core developers
+# Copyright (c) 2014-2019 The Geranium Core developers
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 """Test the pruning code.
@@ -11,17 +11,16 @@ This test takes 30 mins or more (up to 2 hours)
 import os
 
 from test_framework.blocktools import create_coinbase
-from test_framework.messages import CBlock
-from test_framework.script import (
-    CScript,
-    OP_NOP,
-    OP_RETURN,
-)
+from test_framework.messages import CBlock, ToHex
+from test_framework.script import CScript, OP_RETURN, OP_NOP
 from test_framework.test_framework import GeraniumTestFramework
 from test_framework.util import (
     assert_equal,
     assert_greater_than,
     assert_raises_rpc_error,
+    connect_nodes,
+    disconnect_nodes,
+    wait_until,
 )
 
 # Rescans start at the earliest block up to 2 hours before a key timestamp, so
@@ -66,7 +65,7 @@ def mine_large_blocks(node, n):
         block.solve()
 
         # Submit to the node
-        node.submitblock(block.serialize().hex())
+        node.submitblock(ToHex(block))
 
         previousblockhash = block.sha256
         height += 1
@@ -104,17 +103,18 @@ class PruneTest(GeraniumTestFramework):
 
         self.prunedir = os.path.join(self.nodes[2].datadir, self.chain, 'blocks', '')
 
-        self.connect_nodes(0, 1)
-        self.connect_nodes(1, 2)
-        self.connect_nodes(0, 2)
-        self.connect_nodes(0, 3)
-        self.connect_nodes(0, 4)
+        connect_nodes(self.nodes[0], 1)
+        connect_nodes(self.nodes[1], 2)
+        connect_nodes(self.nodes[0], 2)
+        connect_nodes(self.nodes[0], 3)
+        connect_nodes(self.nodes[0], 4)
         self.sync_blocks(self.nodes[0:5])
 
     def setup_nodes(self):
         self.add_nodes(self.num_nodes, self.extra_args)
         self.start_nodes()
-        self.import_deterministic_coinbase_privkeys()
+        for n in self.nodes:
+            n.importprivkey(privkey=n.get_deterministic_priv_key().key, label='coinbase', rescan=False)
 
     def create_big_chain(self):
         # Start by creating some coinbases we can spend later
@@ -136,7 +136,7 @@ class PruneTest(GeraniumTestFramework):
         mine_large_blocks(self.nodes[0], 25)
 
         # Wait for blk00000.dat to be pruned
-        self.wait_until(lambda: not os.path.isfile(os.path.join(self.prunedir, "blk00000.dat")), timeout=30)
+        wait_until(lambda: not os.path.isfile(os.path.join(self.prunedir, "blk00000.dat")), timeout=30)
 
         self.log.info("Success")
         usage = calc_usage(self.prunedir)
@@ -147,11 +147,11 @@ class PruneTest(GeraniumTestFramework):
         # Create stale blocks in manageable sized chunks
         self.log.info("Mine 24 (stale) blocks on Node 1, followed by 25 (main chain) block reorg from Node 0, for 12 rounds")
 
-        for _ in range(12):
+        for j in range(12):
             # Disconnect node 0 so it can mine a longer reorg chain without knowing about node 1's soon-to-be-stale chain
             # Node 2 stays connected, so it hears about the stale blocks and then reorg's when node0 reconnects
-            self.disconnect_nodes(0, 1)
-            self.disconnect_nodes(0, 2)
+            disconnect_nodes(self.nodes[0], 1)
+            disconnect_nodes(self.nodes[0], 2)
             # Mine 24 blocks in node 1
             mine_large_blocks(self.nodes[1], 24)
 
@@ -159,8 +159,8 @@ class PruneTest(GeraniumTestFramework):
             mine_large_blocks(self.nodes[0], 25)
 
             # Create connections in the order so both nodes can see the reorg at the same time
-            self.connect_nodes(0, 1)
-            self.connect_nodes(0, 2)
+            connect_nodes(self.nodes[0], 1)
+            connect_nodes(self.nodes[0], 2)
             self.sync_blocks(self.nodes[0:3])
 
         self.log.info("Usage can be over target because of high stale rate: %d" % calc_usage(self.prunedir))
@@ -189,15 +189,15 @@ class PruneTest(GeraniumTestFramework):
         self.log.info("New best height: %d" % self.nodes[1].getblockcount())
 
         # Disconnect node1 and generate the new chain
-        self.disconnect_nodes(0, 1)
-        self.disconnect_nodes(1, 2)
+        disconnect_nodes(self.nodes[0], 1)
+        disconnect_nodes(self.nodes[1], 2)
 
         self.log.info("Generating new longer chain of 300 more blocks")
         self.nodes[1].generate(300)
 
         self.log.info("Reconnect nodes")
-        self.connect_nodes(0, 1)
-        self.connect_nodes(1, 2)
+        connect_nodes(self.nodes[0], 1)
+        connect_nodes(self.nodes[1], 2)
         self.sync_blocks(self.nodes[0:3], timeout=120)
 
         self.log.info("Verify height on node 2: %d" % self.nodes[2].getblockcount())
@@ -250,7 +250,7 @@ class PruneTest(GeraniumTestFramework):
 
         self.log.info("Verify node 2 reorged back to the main chain, some blocks of which it had to redownload")
         # Wait for Node 2 to reorg to proper height
-        self.wait_until(lambda: self.nodes[2].getblockcount() >= goalbestheight, timeout=900)
+        wait_until(lambda: self.nodes[2].getblockcount() >= goalbestheight, timeout=900)
         assert_equal(self.nodes[2].getbestblockhash(), goalbesthash)
         # Verify we can now have the data for a block previously pruned
         assert_equal(self.nodes[2].getblock(self.forkhash)["height"], self.forkheight)
@@ -263,7 +263,8 @@ class PruneTest(GeraniumTestFramework):
         assert_raises_rpc_error(-1, "not in prune mode", node.pruneblockchain, 500)
 
         # now re-start in manual pruning mode
-        self.restart_node(node_number, extra_args=["-prune=1"])
+        self.stop_node(node_number)
+        self.start_node(node_number, extra_args=["-prune=1"])
         node = self.nodes[node_number]
         assert_equal(node.getblockcount(), 995)
 
@@ -325,23 +326,26 @@ class PruneTest(GeraniumTestFramework):
         assert not has_block(3), "blk00003.dat is still there, should be pruned by now"
 
         # stop node, start back up with auto-prune at 550 MiB, make sure still runs
-        self.restart_node(node_number, extra_args=["-prune=550"])
+        self.stop_node(node_number)
+        self.start_node(node_number, extra_args=["-prune=550"])
 
         self.log.info("Success")
 
     def wallet_test(self):
         # check that the pruning node's wallet is still in good shape
         self.log.info("Stop and start pruning node to trigger wallet rescan")
-        self.restart_node(2, extra_args=["-prune=550"])
+        self.stop_node(2)
+        self.start_node(2, extra_args=["-prune=550"])
         self.log.info("Success")
 
         # check that wallet loads successfully when restarting a pruned node after IBD.
         # this was reported to fail in #7494.
         self.log.info("Syncing node 5 to test wallet")
-        self.connect_nodes(0, 5)
+        connect_nodes(self.nodes[0], 5)
         nds = [self.nodes[0], self.nodes[5]]
         self.sync_blocks(nds, wait=5, timeout=300)
-        self.restart_node(5, extra_args=["-prune=550"]) # restart to trigger rescan
+        self.stop_node(5)  # stop and start to trigger rescan
+        self.start_node(5, extra_args=["-prune=550"])
         self.log.info("Success")
 
     def run_test(self):

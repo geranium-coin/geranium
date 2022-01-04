@@ -41,10 +41,9 @@ The interface is defined in the C header `geraniumconsensus.h` located in `src/s
 - `geraniumconsensus_ERR_TX_SIZE_MISMATCH` - `txToLen` did not match with the size of `txTo`
 - `geraniumconsensus_ERR_DESERIALIZE` - An error deserializing `txTo`
 - `geraniumconsensus_ERR_AMOUNT_REQUIRED` - Input amount is required if WITNESS is used
-- `geraniumconsensus_ERR_INVALID_FLAGS` - Script verification `flags` are invalid (i.e. not part of the libconsensus interface)
 
 ### Example Implementations
-- [NGeranium](https://github.com/MetacoSA/NGeranium/blob/5e1055cd7c4186dee4227c344af8892aea54faec/NGeranium/Script.cs#L979-#L1031) (.NET Bindings)
+- [NGeranium](https://github.com/NicolasDorier/NGeranium/blob/master/NGeranium/Script.cs#L814) (.NET Bindings)
 - [node-libgeraniumconsensus](https://github.com/bitpay/node-libgeraniumconsensus) (Node.js Bindings)
 - [java-libgeraniumconsensus](https://github.com/dexX7/java-libgeraniumconsensus) (Java Bindings)
 - [geraniumconsensus-php](https://github.com/Bit-Wasp/geraniumconsensus-php) (PHP Bindings)

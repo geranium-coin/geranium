@@ -1,6 +1,6 @@
 Geranium Core version 0.16.1 is now available from:
 
-  <https://geraniumcore.org/bin/geranium-core-0.16.1/>
+  <https://bitcoincore.org/bin/geranium-core-0.16.1/>
 
 This is a new minor version release, with various bugfixes
 as well as updated translations.
@@ -11,7 +11,7 @@ Please report bugs using the issue tracker at GitHub:
 
 To receive security and update notifications, please subscribe to:
 
-  <https://geraniumcore.org/en/list/announcements/join/>
+  <https://bitcoincore.org/en/list/announcements/join/>
 
 How to Upgrade
 ==============

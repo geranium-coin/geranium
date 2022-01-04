@@ -1,11 +1,15 @@
 QT_TS = \
+  qt/locale/geranium_ach.ts \
+  qt/locale/geranium_af.ts \
   qt/locale/geranium_am.ts \
   qt/locale/geranium_ar.ts \
   qt/locale/geranium_az.ts \
   qt/locale/geranium_be.ts \
   qt/locale/geranium_bg.ts \
+  qt/locale/geranium_bn.ts \
   qt/locale/geranium_bs.ts \
   qt/locale/geranium_ca.ts \
+  qt/locale/geranium_cmn.ts \
   qt/locale/geranium_cs.ts \
   qt/locale/geranium_cy.ts \
   qt/locale/geranium_da.ts \
@@ -27,10 +31,10 @@ QT_TS = \
   qt/locale/geranium_fr.ts \
   qt/locale/geranium_ga.ts \
   qt/locale/geranium_gd.ts \
-  qt/locale/geranium_gl.ts \
   qt/locale/geranium_gl_ES.ts \
   qt/locale/geranium_gu.ts \
   qt/locale/geranium_he.ts \
+  qt/locale/geranium_hi.ts \
   qt/locale/geranium_hr.ts \
   qt/locale/geranium_hu.ts \
   qt/locale/geranium_id.ts \
@@ -66,6 +70,7 @@ QT_TS = \
   qt/locale/geranium_sc.ts \
   qt/locale/geranium_si.ts \
   qt/locale/geranium_sk.ts \
+  qt/locale/geranium_sl.ts \
   qt/locale/geranium_sn.ts \
   qt/locale/geranium_sq.ts \
   qt/locale/geranium_sr.ts \
@@ -87,4 +92,5 @@ QT_TS = \
   qt/locale/geranium_zh.ts \
   qt/locale/geranium_zh_CN.ts \
   qt/locale/geranium_zh_HK.ts \
-  qt/locale/geranium_zh_TW.ts
+  qt/locale/geranium_zh_TW.ts \
+  qt/locale/geranium_zu.ts

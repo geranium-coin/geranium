@@ -1,4 +1,4 @@
-<TS version="2.1" language="kk">
+<TS language="kk" version="2.1">
 <context>
     <name>AddressBookPage</name>
     <message>
@@ -7,7 +7,7 @@
     </message>
     <message>
         <source>&amp;New</source>
-        <translation type="unfinished">Жаңа</translation>
+        <translation>Жаңа</translation>
     </message>
     <message>
         <source>Copy the currently selected address to the system clipboard</source>
@@ -15,7 +15,7 @@
     </message>
     <message>
         <source>C&amp;lose</source>
-        <translation type="unfinished">Жабу</translation>
+        <translation>Жабу</translation>
     </message>
     <message>
         <source>&amp;Export</source>
@@ -25,6 +25,9 @@
         <source>&amp;Delete</source>
         <translation>Жою</translation>
     </message>
+    </context>
+<context>
+    <name>AddressTableModel</name>
     </context>
 <context>
     <name>AskPassphraseDialog</name>
@@ -42,57 +45,7 @@
     </message>
     </context>
 <context>
-    <name>QObject</name>
-    <message>
-        <source>Amount</source>
-        <translation type="unfinished">Саны</translation>
-    </message>
-    <message numerus="yes">
-        <source>%n second(s)</source>
-        <translation>
-            <numerusform />
-            <numerusform />
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>%n minute(s)</source>
-        <translation>
-            <numerusform />
-            <numerusform />
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>%n hour(s)</source>
-        <translation type="unfinished">
-            <numerusform />
-            <numerusform />
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>%n day(s)</source>
-        <translation type="unfinished">
-            <numerusform />
-            <numerusform />
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>%n week(s)</source>
-        <translation type="unfinished">
-            <numerusform />
-            <numerusform />
-        </translation>
-    </message>
-    <message>
-        <source>%1 and %2</source>
-        <translation type="unfinished">%1 немесе %2</translation>
-    </message>
-    <message numerus="yes">
-        <source>%n year(s)</source>
-        <translation type="unfinished">
-            <numerusform />
-            <numerusform />
-        </translation>
-    </message>
+    <name>BanTableModel</name>
     </context>
 <context>
     <name>GeraniumGUI</name>
@@ -103,6 +56,18 @@
     <message>
         <source>E&amp;xit</source>
         <translation>Шығу</translation>
+    </message>
+    <message>
+        <source>&amp;Options...</source>
+        <translation>Параметрлері</translation>
+    </message>
+    <message>
+        <source>&amp;Backup Wallet...</source>
+        <translation>Әмиянды жасыру</translation>
+    </message>
+    <message>
+        <source>&amp;Change Passphrase...</source>
+        <translation>Құпия сөзді өзгерту</translation>
     </message>
     <message>
         <source>&amp;Send</source>
@@ -119,13 +84,6 @@
     <message>
         <source>&amp;Help</source>
         <translation>Көмек</translation>
-    </message>
-    <message numerus="yes">
-        <source>Processed %n block(s) of transaction history.</source>
-        <translation>
-            <numerusform />
-            <numerusform />
-        </translation>
     </message>
     <message>
         <source>%1 behind</source>
@@ -147,56 +105,47 @@
         <source>Up to date</source>
         <translation>Жаңартылған</translation>
     </message>
-    <message numerus="yes">
-        <source>%n active connection(s) to Geranium network.</source>
-        <extracomment>A substring of the tooltip.</extracomment>
-        <translation type="unfinished">
-            <numerusform />
-            <numerusform />
-        </translation>
-    </message>
     </context>
 <context>
     <name>CoinControlDialog</name>
     <message>
         <source>Amount:</source>
-        <translation type="unfinished">Саны</translation>
+        <translation>Саны</translation>
     </message>
     <message>
         <source>Fee:</source>
-        <translation type="unfinished">Комиссия</translation>
+        <translation>Комиссия</translation>
     </message>
     <message>
         <source>Dust:</source>
-        <translation type="unfinished">Шаң</translation>
+        <translation>Шаң</translation>
     </message>
     <message>
         <source>After Fee:</source>
-        <translation type="unfinished">Комиссия алу кейін</translation>
+        <translation>Комиссия алу кейін</translation>
     </message>
     <message>
         <source>Amount</source>
-        <translation type="unfinished">Саны</translation>
+        <translation>Саны</translation>
     </message>
     <message>
         <source>Date</source>
-        <translation type="unfinished">Күні</translation>
+        <translation>Күні</translation>
     </message>
     <message>
         <source>Confirmations</source>
-        <translation type="unfinished">Растау саны</translation>
+        <translation>Растау саны</translation>
     </message>
     <message>
         <source>Confirmed</source>
-        <translation type="unfinished">Растық</translation>
+        <translation>Растық</translation>
     </message>
     </context>
 <context>
+    <name>CreateWalletActivity</name>
+    </context>
+<context>
     <name>CreateWalletDialog</name>
-    <message>
-        <source>Wallet</source>
-        <translation type="unfinished">Әмиян</translation>
-    </message>
     </context>
 <context>
     <name>EditAddressDialog</name>
@@ -210,18 +159,16 @@
     </message>
     </context>
 <context>
+    <name>FreespaceChecker</name>
+    </context>
+<context>
+    <name>HelpMessageDialog</name>
+    </context>
+<context>
     <name>Intro</name>
     <message>
         <source>Geranium</source>
-        <translation type="unfinished">Биткоин</translation>
-    </message>
-    <message numerus="yes">
-        <source>(sufficient to restore backups %n day(s) old)</source>
-        <extracomment>Explanatory text on the capability of the current prune target.</extracomment>
-        <translation type="unfinished">
-            <numerusform />
-            <numerusform />
-        </translation>
+        <translation>Биткоин</translation>
     </message>
     <message>
         <source>Error</source>
@@ -229,15 +176,47 @@
     </message>
     </context>
 <context>
+    <name>ModalOverlay</name>
+    </context>
+<context>
+    <name>OpenURIDialog</name>
+    </context>
+<context>
+    <name>OpenWalletActivity</name>
+    </context>
+<context>
     <name>OptionsDialog</name>
     <message>
         <source>W&amp;allet</source>
-        <translation type="unfinished">Әмиян</translation>
+        <translation>Әмиян</translation>
     </message>
     <message>
         <source>Error</source>
-        <translation type="unfinished">қате</translation>
+        <translation>қате</translation>
     </message>
+    </context>
+<context>
+    <name>OverviewPage</name>
+    </context>
+<context>
+    <name>PaymentServer</name>
+    </context>
+<context>
+    <name>PeerTableModel</name>
+    </context>
+<context>
+    <name>QObject</name>
+    <message>
+        <source>Amount</source>
+        <translation>Саны</translation>
+    </message>
+    <message>
+        <source>%1 and %2</source>
+        <translation>%1 немесе %2</translation>
+    </message>
+    </context>
+<context>
+    <name>QRImageWidget</name>
     </context>
 <context>
     <name>RPCConsole</name>
@@ -250,47 +229,44 @@
     <name>ReceiveCoinsDialog</name>
     <message>
         <source>&amp;Amount:</source>
-        <translation type="unfinished">Саны</translation>
+        <translation>Саны</translation>
     </message>
     </context>
 <context>
     <name>ReceiveRequestDialog</name>
     <message>
-        <source>Amount:</source>
-        <translation type="unfinished">Саны</translation>
+        <source>Amount</source>
+        <translation>Саны</translation>
     </message>
-    </context>
+    <message>
+        <source>Wallet</source>
+        <translation>Әмиян</translation>
+    </message>
+</context>
 <context>
     <name>RecentRequestsTableModel</name>
     <message>
         <source>Date</source>
-        <translation type="unfinished">Күні</translation>
+        <translation>Күні</translation>
     </message>
     </context>
 <context>
     <name>SendCoinsDialog</name>
     <message>
         <source>Amount:</source>
-        <translation type="unfinished">Саны</translation>
+        <translation>Саны</translation>
     </message>
     <message>
         <source>Fee:</source>
-        <translation type="unfinished">Комиссия</translation>
+        <translation>Комиссия:</translation>
     </message>
     <message>
         <source>After Fee:</source>
-        <translation type="unfinished">Комиссия алу кейін</translation>
+        <translation>Комиссия алу кейін:</translation>
     </message>
     <message>
         <source>Dust:</source>
-        <translation type="unfinished">Шаң</translation>
-    </message>
-    <message numerus="yes">
-        <source>Estimated to begin confirmation within %n block(s).</source>
-        <translation>
-            <numerusform />
-            <numerusform />
-        </translation>
+        <translation>Шаң</translation>
     </message>
     </context>
 <context>
@@ -301,75 +277,74 @@
     </message>
     </context>
 <context>
+    <name>ShutdownWindow</name>
+    </context>
+<context>
+    <name>SignVerifyMessageDialog</name>
+    </context>
+<context>
+    <name>TrafficGraphWidget</name>
+    </context>
+<context>
     <name>TransactionDesc</name>
-    <message numerus="yes">
-        <source>Open for %n more block(s)</source>
-        <translation>
-            <numerusform />
-            <numerusform />
-        </translation>
-    </message>
     <message>
         <source>Date</source>
-        <translation type="unfinished">Күні</translation>
-    </message>
-    <message numerus="yes">
-        <source>matures in %n more block(s)</source>
-        <translation>
-            <numerusform />
-            <numerusform />
-        </translation>
+        <translation>Күні</translation>
     </message>
     <message>
         <source>Amount</source>
-        <translation type="unfinished">Саны</translation>
+        <translation>Саны</translation>
     </message>
+    </context>
+<context>
+    <name>TransactionDescDialog</name>
     </context>
 <context>
     <name>TransactionTableModel</name>
     <message>
         <source>Date</source>
-        <translation type="unfinished">Күні</translation>
-    </message>
-    <message numerus="yes">
-        <source>Open for %n more block(s)</source>
-        <translation>
-            <numerusform />
-            <numerusform />
-        </translation>
+        <translation>Күні</translation>
     </message>
     </context>
 <context>
     <name>TransactionView</name>
     <message>
         <source>Confirmed</source>
-        <translation type="unfinished">Растық</translation>
+        <translation>Растық</translation>
     </message>
     <message>
         <source>Date</source>
-        <translation type="unfinished">Күні</translation>
+        <translation>Күні</translation>
     </message>
+    </context>
+<context>
+    <name>UnitDisplayStatusBarControl</name>
+    </context>
+<context>
+    <name>WalletController</name>
+    </context>
+<context>
+    <name>WalletFrame</name>
+    </context>
+<context>
+    <name>WalletModel</name>
     </context>
 <context>
     <name>WalletView</name>
     <message>
         <source>&amp;Export</source>
-        <translation type="unfinished">Экспорт</translation>
-    </message>
-    <message>
-        <source>Error</source>
-        <translation type="unfinished">қате</translation>
+        <translation>Экспорт</translation>
     </message>
     </context>
 <context>
     <name>geranium-core</name>
     <message>
         <source>Transaction amount too small</source>
-        <translation type="unfinished">Транзакция өте кішкентай</translation>
+        <translation>Транзакция өте кішкентай</translation>
     </message>
     <message>
         <source>Transaction too large</source>
-        <translation type="unfinished">Транзакция өте үлкен</translation>
+        <translation>Транзакция өте үлкен</translation>
     </message>
     </context>
 </TS>

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright (c) 2017-2020 The Geranium Core developers
+# Copyright (c) 2017-2019 The Geranium Core developers
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 """Test recovery from a crash during chainstate writing.
@@ -36,6 +36,7 @@ from test_framework.messages import (
     CTransaction,
     CTxIn,
     CTxOut,
+    ToHex,
 )
 from test_framework.test_framework import GeraniumTestFramework
 from test_framework.util import (
@@ -48,6 +49,7 @@ from test_framework.util import (
 class ChainstateWriteCrashTest(GeraniumTestFramework):
     def set_test_params(self):
         self.num_nodes = 4
+        self.setup_clean_chain = False
         self.rpc_timeout = 480
         self.supports_cli = False
 
@@ -193,7 +195,7 @@ class ChainstateWriteCrashTest(GeraniumTestFramework):
         while len(utxo_list) >= 2 and num_transactions < count:
             tx = CTransaction()
             input_amount = 0
-            for _ in range(2):
+            for i in range(2):
                 utxo = utxo_list.pop()
                 tx.vin.append(CTxIn(COutPoint(int(utxo['txid'], 16), utxo['vout'])))
                 input_amount += int(utxo['amount'] * COIN)
@@ -203,11 +205,11 @@ class ChainstateWriteCrashTest(GeraniumTestFramework):
                 # Sanity check -- if we chose inputs that are too small, skip
                 continue
 
-            for _ in range(3):
+            for i in range(3):
                 tx.vout.append(CTxOut(output_amount, hex_str_to_bytes(utxo['scriptPubKey'])))
 
             # Sign and send the transaction to get into the mempool
-            tx_signed_hex = node.signrawtransactionwithwallet(tx.serialize().hex())['hex']
+            tx_signed_hex = node.signrawtransactionwithwallet(ToHex(tx))['hex']
             node.sendrawtransaction(tx_signed_hex)
             num_transactions += 1
 
@@ -254,11 +256,7 @@ class ChainstateWriteCrashTest(GeraniumTestFramework):
             self.log.debug("Mining longer tip")
             block_hashes = []
             while current_height + 1 > self.nodes[3].getblockcount():
-                block_hashes.extend(self.nodes[3].generatetoaddress(
-                    nblocks=min(10, current_height + 1 - self.nodes[3].getblockcount()),
-                    # new address to avoid mining a block that has just been invalidated
-                    address=self.nodes[3].getnewaddress(),
-                ))
+                block_hashes.extend(self.nodes[3].generate(min(10, current_height + 1 - self.nodes[3].getblockcount())))
             self.log.debug("Syncing %d new blocks...", len(block_hashes))
             self.sync_node3blocks(block_hashes)
             utxo_list = self.nodes[3].listunspent()
@@ -282,7 +280,6 @@ class ChainstateWriteCrashTest(GeraniumTestFramework):
         for i in range(3):
             if self.restart_counts[i] == 0:
                 self.log.warning("Node %d never crashed during utxo flush!", i)
-
 
 if __name__ == "__main__":
     ChainstateWriteCrashTest().main()

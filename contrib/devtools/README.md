@@ -7,8 +7,7 @@ clang-format-diff.py
 
 A script to format unified git diffs according to [.clang-format](../../src/.clang-format).
 
-Requires `clang-format`, installed e.g. via `brew install clang-format` on macOS,
-or `sudo apt install clang-format` on Debian/Ubuntu.
+Requires `clang-format`, installed e.g. via `brew install clang-format` on macOS.
 
 For instance, to format the last commit with 0 lines of context,
 the script should be called from the git root folder as follows.
@@ -89,6 +88,12 @@ example:
 ```bash
 BUILDDIR=$PWD/build contrib/devtools/gen-manpages.sh
 ```
+
+optimize-pngs.py
+================
+
+A script to optimize png files in the geranium
+repository (requires pngcrush).
 
 security-check.py and test-security-check.py
 ============================================

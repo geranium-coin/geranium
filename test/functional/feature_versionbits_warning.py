@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright (c) 2016-2020 The Geranium Core developers
+# Copyright (c) 2016-2019 The Geranium Core developers
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 """Test version bits warning system.
@@ -12,8 +12,9 @@ import re
 
 from test_framework.blocktools import create_block, create_coinbase
 from test_framework.messages import msg_block
-from test_framework.p2p import P2PInterface
+from test_framework.mininode import P2PInterface, mininode_lock
 from test_framework.test_framework import GeraniumTestFramework
+from test_framework.util import wait_until
 
 VB_PERIOD = 144           # versionbits period length for regtest
 VB_THRESHOLD = 108        # versionbits activation threshold for regtest
@@ -21,8 +22,8 @@ VB_TOP_BITS = 0x20000000
 VB_UNKNOWN_BIT = 27       # Choose a bit unassigned to any deployment
 VB_UNKNOWN_VERSION = VB_TOP_BITS | (1 << VB_UNKNOWN_BIT)
 
-WARN_UNKNOWN_RULES_ACTIVE = "Unknown new rules activated (versionbit {})".format(VB_UNKNOWN_BIT)
-VB_PATTERN = re.compile("Unknown new rules activated.*versionbit")
+WARN_UNKNOWN_RULES_ACTIVE = "unknown new rules activated (versionbit {})".format(VB_UNKNOWN_BIT)
+VB_PATTERN = re.compile("Warning: unknown new rules activated.*versionbit")
 
 class VersionBitsWarningTest(GeraniumTestFramework):
     def set_test_params(self):
@@ -61,7 +62,7 @@ class VersionBitsWarningTest(GeraniumTestFramework):
 
     def run_test(self):
         node = self.nodes[0]
-        peer = node.add_p2p_connection(P2PInterface())
+        node.add_p2p_connection(P2PInterface())
 
         node_deterministic_address = node.get_deterministic_priv_key().address
         # Mine one period worth of blocks
@@ -69,7 +70,7 @@ class VersionBitsWarningTest(GeraniumTestFramework):
 
         self.log.info("Check that there is no warning if previous VB_BLOCKS have <VB_THRESHOLD blocks with unknown versionbits version.")
         # Build one period of blocks with < VB_THRESHOLD blocks signaling some unknown bit
-        self.send_blocks_with_version(peer, VB_THRESHOLD - 1, VB_UNKNOWN_VERSION)
+        self.send_blocks_with_version(node.p2p, VB_THRESHOLD - 1, VB_UNKNOWN_VERSION)
         node.generatetoaddress(VB_PERIOD - VB_THRESHOLD + 1, node_deterministic_address)
 
         # Check that we're not getting any versionbit-related errors in get*info()
@@ -77,7 +78,7 @@ class VersionBitsWarningTest(GeraniumTestFramework):
         assert not VB_PATTERN.match(node.getnetworkinfo()["warnings"])
 
         # Build one period of blocks with VB_THRESHOLD blocks signaling some unknown bit
-        self.send_blocks_with_version(peer, VB_THRESHOLD, VB_UNKNOWN_VERSION)
+        self.send_blocks_with_version(node.p2p, VB_THRESHOLD, VB_UNKNOWN_VERSION)
         node.generatetoaddress(VB_PERIOD - VB_THRESHOLD, node_deterministic_address)
 
         self.log.info("Check that there is a warning if previous VB_BLOCKS have >=VB_THRESHOLD blocks with unknown versionbits version.")
@@ -90,14 +91,14 @@ class VersionBitsWarningTest(GeraniumTestFramework):
 
         # Generating one block guarantees that we'll get out of IBD
         node.generatetoaddress(1, node_deterministic_address)
-        self.wait_until(lambda: not node.getblockchaininfo()['initialblockdownload'])
+        wait_until(lambda: not node.getblockchaininfo()['initialblockdownload'], timeout=10, lock=mininode_lock)
         # Generating one more block will be enough to generate an error.
         node.generatetoaddress(1, node_deterministic_address)
         # Check that get*info() shows the versionbits unknown rules warning
         assert WARN_UNKNOWN_RULES_ACTIVE in node.getmininginfo()["warnings"]
         assert WARN_UNKNOWN_RULES_ACTIVE in node.getnetworkinfo()["warnings"]
         # Check that the alert file shows the versionbits unknown rules warning
-        self.wait_until(lambda: self.versionbits_in_alert_file())
+        wait_until(lambda: self.versionbits_in_alert_file(), timeout=60)
 
 if __name__ == '__main__':
     VersionBitsWarningTest().main()

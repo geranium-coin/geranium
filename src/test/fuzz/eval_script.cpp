@@ -1,20 +1,21 @@
-// Copyright (c) 2009-2020 The Geranium Core developers
+// Copyright (c) 2009-2019 The Geranium Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include <pubkey.h>
 #include <script/interpreter.h>
-#include <test/fuzz/FuzzedDataProvider.h>
 #include <test/fuzz/fuzz.h>
+#include <test/fuzz/FuzzedDataProvider.h>
+#include <util/memory.h>
 
 #include <limits>
 
-void initialize_eval_script()
+void initialize()
 {
     static const ECCVerifyHandle verify_handle;
 }
 
-FUZZ_TARGET_INIT(eval_script, initialize_eval_script)
+void test_one_input(const std::vector<uint8_t>& buffer)
 {
     FuzzedDataProvider fuzzed_data_provider(buffer.data(), buffer.size());
     const unsigned int flags = fuzzed_data_provider.ConsumeIntegral<unsigned int>();

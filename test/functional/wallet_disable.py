@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright (c) 2015-2020 The Geranium Core developers
+# Copyright (c) 2015-2019 The Geranium Core developers
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 """Test a node with the -disablewallet option.
@@ -16,7 +16,6 @@ class DisableWalletTest (GeraniumTestFramework):
         self.setup_clean_chain = True
         self.num_nodes = 1
         self.extra_args = [["-disablewallet"]]
-        self.wallet_names = []
 
     def run_test (self):
         # Make sure wallet is really disabled

@@ -24,4 +24,3 @@ libtest_util/libtest_util.vcxproj
 */Win32
 libgeranium_qt/QtGeneratedFiles/*
 test_geranium-qt/QtGeneratedFiles/*
-vcpkg_installed

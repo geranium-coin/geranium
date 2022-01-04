@@ -60,17 +60,16 @@ start_pre() {
 	"${GERANIUMD_PIDDIR}"
 
 	checkpath -f \
-	-o "${GERANIUMD_USER}:${GERANIUMD_GROUP}" \
+	-o ${GERANIUMD_USER}:${GERANIUMD_GROUP} \
 	-m 0660 \
-	"${GERANIUMD_CONFIGFILE}"
+	${GERANIUMD_CONFIGFILE}
 
 	checkconfig || return 1
 }
 
 checkconfig()
 {
-	if grep -qs '^rpcuser=' "${GERANIUMD_CONFIGFILE}" && \
-		! grep -qs '^rpcpassword=' "${GERANIUMD_CONFIGFILE}" ; then
+	if ! grep -qs '^rpcpassword=' "${GERANIUMD_CONFIGFILE}" ; then
 		eerror ""
 		eerror "ERROR: You must set a secure rpcpassword to run geraniumd."
 		eerror "The setting must appear in ${GERANIUMD_CONFIGFILE}"

@@ -10,9 +10,6 @@
   </PropertyGroup>
   <ItemGroup>
     <ClCompile Include="..\..\src\geraniumd.cpp" />
-    <ClCompile Include="..\..\src\init\geraniumd.cpp">
-      <ObjectFileName>$(IntDir)init_geraniumd.obj</ObjectFileName>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\libgeraniumconsensus\libgeraniumconsensus.vcxproj">
@@ -65,10 +62,6 @@
                    Replace="@EXEEXT@" By=".exe"></ReplaceInFile>
     <ReplaceInFile FilePath="$(ConfigIniOut)"
                   Replace="@ENABLE_WALLET_TRUE@" By=""></ReplaceInFile>
-    <ReplaceInFile FilePath="$(ConfigIniOut)"
-                  Replace="@USE_BDB_TRUE@" By=""></ReplaceInFile>
-    <ReplaceInFile FilePath="$(ConfigIniOut)"
-                  Replace="@USE_SQLITE_TRUE@" By=""></ReplaceInFile>
     <ReplaceInFile FilePath="$(ConfigIniOut)"
                   Replace="@BUILD_GERANIUM_CLI_TRUE@" By=""></ReplaceInFile>
     <ReplaceInFile FilePath="$(ConfigIniOut)"

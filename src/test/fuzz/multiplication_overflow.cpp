@@ -14,7 +14,7 @@
 #if __has_builtin(__builtin_mul_overflow)
 #define HAVE_BUILTIN_MUL_OVERFLOW
 #endif
-#elif defined(__GNUC__)
+#elif defined(__GNUC__) && (__GNUC__ >= 5)
 #define HAVE_BUILTIN_MUL_OVERFLOW
 #endif
 
@@ -40,7 +40,7 @@ void TestMultiplicationOverflow(FuzzedDataProvider& fuzzed_data_provider)
 }
 } // namespace
 
-FUZZ_TARGET(multiplication_overflow)
+void test_one_input(const std::vector<uint8_t>& buffer)
 {
     FuzzedDataProvider fuzzed_data_provider(buffer.data(), buffer.size());
     TestMultiplicationOverflow<int64_t>(fuzzed_data_provider);

@@ -29,8 +29,8 @@ All other packaging related files can be found in the [geranium-core/packaging](
 ### [Gitian-descriptors](/contrib/gitian-descriptors) ###
 Files used during the gitian build process. For more information about gitian, see the [the Geranium Core documentation repository](https://github.com/geranium-core/docs).
 
-### [Builder keys](/contrib/builder-keys)
-PGP keys used for signing Geranium Core [release](/doc/release-process.md) results.
+### [Gitian-keys](/contrib/gitian-keys)
+PGP keys used for signing Geranium Core [Gitian release](/doc/release-process.md) results.
 
 ### [MacDeploy](/contrib/macdeploy) ###
 Scripts and notes for Mac builds.

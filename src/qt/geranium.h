@@ -10,10 +10,7 @@
 #endif
 
 #include <QApplication>
-#include <assert.h>
 #include <memory>
-
-#include <interfaces/node.h>
 
 class GeraniumGUI;
 class ClientModel;
@@ -21,10 +18,13 @@ class NetworkStyle;
 class OptionsModel;
 class PaymentServer;
 class PlatformStyle;
-class SplashScreen;
 class WalletController;
 class WalletModel;
 
+namespace interfaces {
+class Handler;
+class Node;
+} // namespace interfaces
 
 /** Class encapsulating Geranium Core startup and shutdown.
  * Allows running startup and shutdown in a different thread from the UI thread.
@@ -40,7 +40,7 @@ public Q_SLOTS:
     void shutdown();
 
 Q_SIGNALS:
-    void initializeResult(bool success, interfaces::BlockAndHeaderTipInfo tip_info);
+    void initializeResult(bool success);
     void shutdownResult();
     void runawayException(const QString &message);
 
@@ -56,7 +56,7 @@ class GeraniumApplication: public QApplication
 {
     Q_OBJECT
 public:
-    explicit GeraniumApplication();
+    explicit GeraniumApplication(interfaces::Node& node);
     ~GeraniumApplication();
 
 #ifdef ENABLE_WALLET
@@ -68,7 +68,7 @@ public:
     /// Create options model
     void createOptionsModel(bool resetSettings);
     /// Initialize prune setting
-    void InitPruneSetting(int64_t prune_MiB);
+    void InitializePruneSetting(bool prune);
     /// Create main window
     void createWindow(const NetworkStyle *networkStyle);
     /// Create splash screen
@@ -90,20 +90,11 @@ public:
     /// Setup platform style
     void setupPlatformStyle();
 
-    interfaces::Node& node() const { assert(m_node); return *m_node; }
-    void setNode(interfaces::Node& node);
-
 public Q_SLOTS:
-    void initializeResult(bool success, interfaces::BlockAndHeaderTipInfo tip_info);
+    void initializeResult(bool success);
     void shutdownResult();
     /// Handle runaway exceptions. Shows a message box with the problem and quits the program.
     void handleRunawayException(const QString &message);
-
-    /**
-     * A helper function that shows a message box
-     * with details about a non-fatal exception.
-     */
-    void handleNonFatalException(const QString& message);
 
 Q_SIGNALS:
     void requestedInitialize();
@@ -113,6 +104,7 @@ Q_SIGNALS:
 
 private:
     QThread *coreThread;
+    interfaces::Node& m_node;
     OptionsModel *optionsModel;
     ClientModel *clientModel;
     GeraniumGUI *window;
@@ -124,8 +116,6 @@ private:
     int returnValue;
     const PlatformStyle *platformStyle;
     std::unique_ptr<QWidget> shutdownWindow;
-    SplashScreen* m_splash = nullptr;
-    interfaces::Node* m_node = nullptr;
 
     void startThread();
 };

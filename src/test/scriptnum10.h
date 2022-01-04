@@ -1,17 +1,17 @@
 // Copyright (c) 2009-2010 Gem Nakamoto
-// Copyright (c) 2009-2020 The Geranium Core developers
+// Copyright (c) 2009-2019 The Geranium Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #ifndef GERANIUM_TEST_SCRIPTNUM10_H
 #define GERANIUM_TEST_SCRIPTNUM10_H
 
-#include <assert.h>
 #include <limits>
 #include <stdexcept>
 #include <stdint.h>
 #include <string>
 #include <vector>
+#include <assert.h>
 
 class scriptnum10_error : public std::runtime_error
 {

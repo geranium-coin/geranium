@@ -5,12 +5,10 @@
 src/geranium
 src/geraniumd
 src/geranium-cli
-src/geranium-gui
-src/geranium-node
 src/geranium-tx
-src/geranium-util
 src/geranium-wallet
-src/test/fuzz/fuzz
+src/test/fuzz
+!src/test/fuzz/*.*
 src/test/test_geranium
 src/qt/test/test_geranium-qt
 
@@ -61,7 +59,7 @@ src/qt/geranium-qt.includes
 .dirstamp
 .libs
 .*.swp
-*~
+*.*~*
 *.bak
 *.rej
 *.orig
@@ -76,7 +74,6 @@ src/qt/geranium-qt.includes
 *.log
 *.trs
 *.dmg
-*.iso
 
 *.json.h
 *.raw.h
@@ -120,10 +117,7 @@ releases
 /*.info
 test_geranium.coverage/
 total.coverage/
-fuzz.coverage/
 coverage_percent.txt
-/cov_tool_wrapper.sh
-qa-assets/
 
 #build tests
 linux-coverage-build
@@ -131,7 +125,6 @@ linux-build
 win32-build
 test/config.ini
 test/cache/*
-test/.mypy_cache/
 
 !src/leveldb*/Makefile
 
@@ -149,5 +142,3 @@ db4/
 osx_volname
 dist/
 *.background.tiff
-
-/guix-build-*

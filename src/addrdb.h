@@ -1,5 +1,5 @@
 // Copyright (c) 2009-2010 Gem Nakamoto
-// Copyright (c) 2009-2020 The Geranium Core developers
+// Copyright (c) 2009-2019 The Geranium Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -9,12 +9,11 @@
 #include <fs.h>
 #include <net_types.h> // For banmap_t
 #include <serialize.h>
-#include <univalue.h>
 
 #include <string>
-#include <vector>
+#include <map>
 
-class CAddress;
+class CSubNet;
 class CAddrMan;
 class CDataStream;
 
@@ -37,13 +36,6 @@ public:
         nCreateTime = nCreateTimeIn;
     }
 
-    /**
-     * Create a ban entry from JSON.
-     * @param[in] json A JSON representation of a ban entry, as created by `ToJson()`.
-     * @throw std::runtime_error if the JSON does not have the expected fields.
-     */
-    explicit CBanEntry(const UniValue& json);
-
     SERIALIZE_METHODS(CBanEntry, obj)
     {
         uint8_t ban_reason = 2; //! For backward compatibility
@@ -56,12 +48,6 @@ public:
         nCreateTime = 0;
         nBanUntil = 0;
     }
-
-    /**
-     * Generate a JSON representation of this ban entry.
-     * @return JSON suitable for passing to the `CBanEntry(const UniValue&)` constructor.
-     */
-    UniValue ToJson() const;
 };
 
 /** Access to the (IP) address database (peers.dat) */
@@ -76,46 +62,15 @@ public:
     static bool Read(CAddrMan& addr, CDataStream& ssPeers);
 };
 
-/** Access to the banlist databases (banlist.json and banlist.dat) */
+/** Access to the banlist database (banlist.dat) */
 class CBanDB
 {
 private:
-    /**
-     * JSON key under which the data is stored in the json database.
-     */
-    static constexpr const char* JSON_KEY = "banned_nets";
-
-    const fs::path m_banlist_dat;
-    const fs::path m_banlist_json;
+    const fs::path m_ban_list_path;
 public:
     explicit CBanDB(fs::path ban_list_path);
     bool Write(const banmap_t& banSet);
-
-    /**
-     * Read the banlist from disk.
-     * @param[out] banSet The loaded list. Set if `true` is returned, otherwise it is left
-     * in an undefined state.
-     * @param[out] dirty Indicates whether the loaded list needs flushing to disk. Set if
-     * `true` is returned, otherwise it is left in an undefined state.
-     * @return true on success
-     */
-    bool Read(banmap_t& banSet, bool& dirty);
+    bool Read(banmap_t& banSet);
 };
-
-/**
- * Dump the anchor IP address database (anchors.dat)
- *
- * Anchors are last known outgoing block-relay-only peers that are
- * tried to re-connect to on startup.
- */
-void DumpAnchors(const fs::path& anchors_db_path, const std::vector<CAddress>& anchors);
-
-/**
- * Read the anchor IP address database (anchors.dat)
- *
- * Deleting anchors.dat is intentional as it avoids renewed peering to anchors after
- * an unclean shutdown and thus potential exploitation of the anchor peer policy.
- */
-std::vector<CAddress> ReadAnchors(const fs::path& anchors_db_path);
 
 #endif // GERANIUM_ADDRDB_H

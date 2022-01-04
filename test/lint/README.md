@@ -15,16 +15,7 @@ git-subtree-check.sh
 Run this script from the root of the repository to verify that a subtree matches the contents of
 the commit it claims to have been updated to.
 
-```
-Usage: test/lint/git-subtree-check.sh [-r] DIR [COMMIT]
-       test/lint/git-subtree-check.sh -?
-```
-
-- `DIR` is the prefix within the repository to check.
-- `COMMIT` is the commit to check, if it is not provided, HEAD will be used.
-- `-r` checks that subtree commit is present in repository.
-
-To do a full check with `-r`, make sure that you have fetched the upstream repository branch in which the subtree is
+To use, make sure that you have fetched the upstream repository branch in which the subtree is
 maintained:
 * for `src/secp256k1`: https://github.com/geranium-core/secp256k1.git (branch master)
 * for `src/leveldb`: https://github.com/geranium-core/leveldb.git (branch geranium-fork)
@@ -32,11 +23,9 @@ maintained:
 * for `src/crypto/ctaes`: https://github.com/geranium-core/ctaes.git (branch master)
 * for `src/crc32c`: https://github.com/google/crc32c.git (branch master)
 
-To do so, add the upstream repository as remote:
+Usage: `git-subtree-check.sh DIR (COMMIT)`
 
-```
-git remote add --fetch secp256k1 https://github.com/geranium-core/secp256k1.git
-```
+`COMMIT` may be omitted, in which case `HEAD` is used.
 
 lint-all.sh
 ===========

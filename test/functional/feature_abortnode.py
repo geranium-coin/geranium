@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright (c) 2019-2020 The Geranium Core developers
+# Copyright (c) 2019 The Geranium Core developers
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 """Test geraniumd aborts if can't disconnect a block.
@@ -11,7 +11,7 @@
 """
 
 from test_framework.test_framework import GeraniumTestFramework
-from test_framework.util import get_datadir_path
+from test_framework.util import wait_until, get_datadir_path, connect_nodes
 import os
 
 
@@ -36,12 +36,12 @@ class AbortNodeTest(GeraniumTestFramework):
         # attempt.
         self.nodes[1].generate(3)
         with self.nodes[0].assert_debug_log(["Failed to disconnect block"]):
-            self.connect_nodes(0, 1)
+            connect_nodes(self.nodes[0], 1)
             self.nodes[1].generate(1)
 
             # Check that node0 aborted
             self.log.info("Waiting for crash")
-            self.nodes[0].wait_until_stopped(timeout=200)
+            wait_until(lambda: self.nodes[0].is_node_stopped(), timeout=200)
         self.log.info("Node crashed - now verifying restart fails")
         self.nodes[0].assert_start_raises_init_error()
 
