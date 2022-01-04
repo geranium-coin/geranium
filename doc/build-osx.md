@@ -47,7 +47,7 @@ from the root of the repository.
 
 1. Clone the Geranium Core source code:
     ```shell
-    git clone https://github.com/geranium/geranium
+    git clone https://github.com/geranium-coin/geranium
     cd geranium
     ```
 
