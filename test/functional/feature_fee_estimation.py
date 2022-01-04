@@ -1,34 +1,19 @@
 #!/usr/bin/env python3
-# Copyright (c) 2014-2020 The Geranium Core developers
+# Copyright (c) 2014-2019 The Geranium Core developers
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 """Test fee estimation code."""
 from decimal import Decimal
 import random
 
-from test_framework.messages import (
-    COIN,
-    COutPoint,
-    CTransaction,
-    CTxIn,
-    CTxOut,
-)
-from test_framework.script import (
-    CScript,
-    OP_1,
-    OP_2,
-    OP_DROP,
-    OP_TRUE,
-)
-from test_framework.script_util import (
-    script_to_p2sh_script,
-)
+from test_framework.messages import CTransaction, CTxIn, CTxOut, COutPoint, ToHex, COIN
+from test_framework.script import CScript, OP_1, OP_DROP, OP_2, OP_HASH160, OP_EQUAL, hash160, OP_TRUE
 from test_framework.test_framework import GeraniumTestFramework
 from test_framework.util import (
     assert_equal,
     assert_greater_than,
     assert_greater_than_or_equal,
-    assert_raises_rpc_error,
+    connect_nodes,
     satoshi_round,
 )
 
@@ -37,8 +22,8 @@ from test_framework.util import (
 # time signing.
 REDEEM_SCRIPT_1 = CScript([OP_1, OP_DROP])
 REDEEM_SCRIPT_2 = CScript([OP_2, OP_DROP])
-P2SH_1 = script_to_p2sh_script(REDEEM_SCRIPT_1)
-P2SH_2 = script_to_p2sh_script(REDEEM_SCRIPT_2)
+P2SH_1 = CScript([OP_HASH160, hash160(REDEEM_SCRIPT_1), OP_EQUAL])
+P2SH_2 = CScript([OP_HASH160, hash160(REDEEM_SCRIPT_2), OP_EQUAL])
 
 # Associated ScriptSig's to spend satisfy P2SH_1 and P2SH_2
 SCRIPT_SIG = [CScript([OP_TRUE, REDEEM_SCRIPT_1]), CScript([OP_TRUE, REDEEM_SCRIPT_2])]
@@ -79,11 +64,11 @@ def small_txpuzzle_randfee(from_node, conflist, unconflist, amount, min_fee, fee
     # the ScriptSig that will satisfy the ScriptPubKey.
     for inp in tx.vin:
         inp.scriptSig = SCRIPT_SIG[inp.prevout.n]
-    txid = from_node.sendrawtransaction(hexstring=tx.serialize().hex(), maxfeerate=0)
+    txid = from_node.sendrawtransaction(hexstring=ToHex(tx), maxfeerate=0)
     unconflist.append({"txid": txid, "vout": 0, "amount": total_in - amount - fee})
     unconflist.append({"txid": txid, "vout": 1, "amount": amount})
 
-    return (tx.serialize().hex(), fee)
+    return (ToHex(tx), fee)
 
 
 def split_inputs(from_node, txins, txouts, initial_split=False):
@@ -106,10 +91,10 @@ def split_inputs(from_node, txins, txouts, initial_split=False):
     # If this is the initial split we actually need to sign the transaction
     # Otherwise we just need to insert the proper ScriptSig
     if (initial_split):
-        completetx = from_node.signrawtransactionwithwallet(tx.serialize().hex())["hex"]
+        completetx = from_node.signrawtransactionwithwallet(ToHex(tx))["hex"]
     else:
         tx.vin[0].scriptSig = SCRIPT_SIG[prevtxout["vout"]]
-        completetx = tx.serialize().hex()
+        completetx = ToHex(tx)
     txid = from_node.sendrawtransaction(hexstring=completetx, maxfeerate=0)
     txouts.append({"txid": txid, "vout": 0, "amount": half_change})
     txouts.append({"txid": txid, "vout": 1, "amount": rem_change})
@@ -191,9 +176,9 @@ class EstimateFeeTest(GeraniumTestFramework):
         # We shuffle our confirmed txout set before each set of transactions
         # small_txpuzzle_randfee will use the transactions that have inputs already in the chain when possible
         # resorting to tx's that depend on the mempool when those run out
-        for _ in range(numblocks):
+        for i in range(numblocks):
             random.shuffle(self.confutxo)
-            for _ in range(random.randrange(100 - 50, 100 + 50)):
+            for j in range(random.randrange(100 - 50, 100 + 50)):
                 from_index = random.randint(1, 2)
                 (txhex, fee) = small_txpuzzle_randfee(self.nodes[from_index], self.confutxo,
                                                       self.memutxo, Decimal("0.005"), min_fee, min_fee)
@@ -247,9 +232,9 @@ class EstimateFeeTest(GeraniumTestFramework):
         # so the estimates would not be affected by the splitting transactions
         self.start_node(1)
         self.start_node(2)
-        self.connect_nodes(1, 0)
-        self.connect_nodes(0, 2)
-        self.connect_nodes(2, 1)
+        connect_nodes(self.nodes[1], 0)
+        connect_nodes(self.nodes[0], 2)
+        connect_nodes(self.nodes[2], 1)
 
         self.sync_all()
 
@@ -258,7 +243,7 @@ class EstimateFeeTest(GeraniumTestFramework):
         self.confutxo = self.txouts  # Start with the set of confirmed txouts after splitting
         self.log.info("Will output estimates for 1/2/3/6/15/25 blocks")
 
-        for _ in range(2):
+        for i in range(2):
             self.log.info("Creating transactions and mining them with a block size that can't keep up")
             # Create transactions and mine 10 small blocks with node 2, but create txs faster than we can mine
             self.transact_and_mine(10, self.nodes[2])
@@ -277,11 +262,6 @@ class EstimateFeeTest(GeraniumTestFramework):
         self.sync_blocks(self.nodes[0:3], wait=.1)
         self.log.info("Final estimates after emptying mempools")
         check_estimates(self.nodes[1], self.fees_per_kb)
-
-        self.log.info("Testing that fee estimation is disabled in blocksonly.")
-        self.restart_node(0, ["-blocksonly"])
-        assert_raises_rpc_error(-32603, "Fee estimation disabled",
-                                self.nodes[0].estimatesmartfee, 2)
 
 
 if __name__ == '__main__':

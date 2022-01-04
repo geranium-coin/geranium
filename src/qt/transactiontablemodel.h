@@ -1,4 +1,4 @@
-// Copyright (c) 2011-2020 The Geranium Core developers
+// Copyright (c) 2011-2018 The Geranium Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -76,11 +76,11 @@ public:
         RawDecorationRole,
     };
 
-    int rowCount(const QModelIndex &parent) const override;
-    int columnCount(const QModelIndex &parent) const override;
-    QVariant data(const QModelIndex &index, int role) const override;
-    QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
-    QModelIndex index(int row, int column, const QModelIndex & parent = QModelIndex()) const override;
+    int rowCount(const QModelIndex &parent) const;
+    int columnCount(const QModelIndex &parent) const;
+    QVariant data(const QModelIndex &index, int role) const;
+    QVariant headerData(int section, Qt::Orientation orientation, int role) const;
+    QModelIndex index(int row, int column, const QModelIndex & parent = QModelIndex()) const;
     bool processingQueuedTransactions() const { return fProcessingQueuedTransactions; }
 
 private:
@@ -101,7 +101,7 @@ private:
     QString formatTxDate(const TransactionRecord *wtx) const;
     QString formatTxType(const TransactionRecord *wtx) const;
     QString formatTxToAddress(const TransactionRecord *wtx, bool tooltip) const;
-    QString formatTxAmount(const TransactionRecord *wtx, bool showUnconfirmed=true, GeraniumUnits::SeparatorStyle separators=GeraniumUnits::SeparatorStyle::STANDARD) const;
+    QString formatTxAmount(const TransactionRecord *wtx, bool showUnconfirmed=true, GeraniumUnits::SeparatorStyle separators=GeraniumUnits::separatorStandard) const;
     QString formatTooltip(const TransactionRecord *rec) const;
     QVariant txStatusDecoration(const TransactionRecord *wtx) const;
     QVariant txWatchonlyDecoration(const TransactionRecord *wtx) const;

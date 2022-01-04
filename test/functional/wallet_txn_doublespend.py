@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright (c) 2014-2020 The Geranium Core developers
+# Copyright (c) 2014-2019 The Geranium Core developers
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 """Test the wallet accounts properly when there is a double-spend conflict."""
@@ -8,13 +8,14 @@ from decimal import Decimal
 from test_framework.test_framework import GeraniumTestFramework
 from test_framework.util import (
     assert_equal,
+    connect_nodes,
+    disconnect_nodes,
     find_output,
 )
 
-
 class TxnMallTest(GeraniumTestFramework):
     def set_test_params(self):
-        self.num_nodes = 3
+        self.num_nodes = 4
         self.supports_cli = False
 
     def skip_test_if_missing_module(self):
@@ -27,7 +28,8 @@ class TxnMallTest(GeraniumTestFramework):
     def setup_network(self):
         # Start with split network:
         super().setup_network()
-        self.disconnect_nodes(1, 2)
+        disconnect_nodes(self.nodes[1], 2)
+        disconnect_nodes(self.nodes[2], 1)
 
     def run_test(self):
         # All nodes should start with 1,250 GEAM:
@@ -40,8 +42,9 @@ class TxnMallTest(GeraniumTestFramework):
         for n in self.nodes:
             assert n.getblockchaininfo()["initialblockdownload"] == False
 
-        for i in range(3):
+        for i in range(4):
             assert_equal(self.nodes[i].getbalance(), starting_balance)
+            self.nodes[i].getnewaddress("")  # bug workaround, coins generated assigned to first getnewaddress!
 
         # Assign coins to foo and bar addresses:
         node0_address_foo = self.nodes[0].getnewaddress()
@@ -114,7 +117,7 @@ class TxnMallTest(GeraniumTestFramework):
         self.nodes[2].generate(1)
 
         # Reconnect the split network, and sync chain:
-        self.connect_nodes(1, 2)
+        connect_nodes(self.nodes[1], 2)
         self.nodes[2].generate(1)  # Mine another block to make sure we sync
         self.sync_blocks()
         assert_equal(self.nodes[0].gettransaction(doublespend_txid)["confirmations"], 2)
@@ -135,7 +138,6 @@ class TxnMallTest(GeraniumTestFramework):
 
         # Node1's balance should be its initial balance (1250 for 25 block rewards) plus the doublespend:
         assert_equal(self.nodes[1].getbalance(), 1250 + 1240)
-
 
 if __name__ == '__main__':
     TxnMallTest().main()

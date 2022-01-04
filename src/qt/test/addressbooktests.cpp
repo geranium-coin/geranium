@@ -1,4 +1,4 @@
-// Copyright (c) 2017-2020 The Geranium Core developers
+// Copyright (c) 2017-2019 The Geranium Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -8,7 +8,6 @@
 
 #include <interfaces/chain.h>
 #include <interfaces/node.h>
-#include <qt/clientmodel.h>
 #include <qt/editaddressdialog.h>
 #include <qt/optionsmodel.h>
 #include <qt/platformstyle.h>
@@ -18,7 +17,6 @@
 #include <key.h>
 #include <key_io.h>
 #include <wallet/wallet.h>
-#include <walletinitinterface.h>
 
 #include <QApplication>
 #include <QTimer>
@@ -60,10 +58,10 @@ void EditAddressAndSubmit(
 void TestAddAddressesToSendBook(interfaces::Node& node)
 {
     TestChain100Setup test;
-    node.setContext(&test.m_node);
-    std::shared_ptr<CWallet> wallet = std::make_shared<CWallet>(node.context()->chain.get(), "", CreateMockWalletDatabase());
+    std::shared_ptr<CWallet> wallet = std::make_shared<CWallet>(node.context()->chain.get(), WalletLocation(), WalletDatabase::CreateMock());
     wallet->SetupLegacyScriptPubKeyMan();
-    wallet->LoadWallet();
+    bool firstRun;
+    wallet->LoadWallet(firstRun);
 
     auto build_address = [&wallet]() {
         CKey key;
@@ -107,11 +105,10 @@ void TestAddAddressesToSendBook(interfaces::Node& node)
 
     // Initialize relevant QT models.
     std::unique_ptr<const PlatformStyle> platformStyle(PlatformStyle::instantiate("other"));
-    OptionsModel optionsModel;
-    ClientModel clientModel(node, &optionsModel);
+    OptionsModel optionsModel(node);
     AddWallet(wallet);
-    WalletModel walletModel(interfaces::MakeWallet(wallet), clientModel, platformStyle.get());
-    RemoveWallet(wallet, std::nullopt);
+    WalletModel walletModel(interfaces::MakeWallet(wallet), node, platformStyle.get(), &optionsModel);
+    RemoveWallet(wallet);
     EditAddressDialog editAddressDialog(EditAddressDialog::NewSendingAddress);
     editAddressDialog.setModel(walletModel.getAddressTableModel());
 

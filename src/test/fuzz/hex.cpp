@@ -1,10 +1,10 @@
-// Copyright (c) 2019-2020 The Geranium Core developers
+// Copyright (c) 2019 The Geranium Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
 #include <core_io.h>
-#include <primitives/block.h>
 #include <pubkey.h>
+#include <primitives/block.h>
 #include <rpc/util.h>
 #include <test/fuzz/fuzz.h>
 #include <uint256.h>
@@ -16,12 +16,11 @@
 #include <string>
 #include <vector>
 
-void initialize_hex()
-{
+void initialize() {
     static const ECCVerifyHandle verify_handle;
 }
 
-FUZZ_TARGET_INIT(hex, initialize_hex)
+void test_one_input(const std::vector<uint8_t>& buffer)
 {
     const std::string random_hex_string(buffer.begin(), buffer.end());
     const std::vector<unsigned char> data = ParseHex(random_hex_string);

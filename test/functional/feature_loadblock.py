@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright (c) 2017-2020 The Geranium Core developers
+# Copyright (c) 2017-2019 The Geranium Core developers
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 """Test loadblock option
@@ -16,9 +16,10 @@ import sys
 import tempfile
 import urllib
 
-from test_framework.blocktools import COINBASE_MATURITY
-from test_framework.test_framework import GeraniumTestFramework
-from test_framework.util import assert_equal
+from test_framework.test_framework import (
+    GeraniumTestFramework,
+)
+from test_framework.util import assert_equal, wait_until
 
 
 class LoadblockTest(GeraniumTestFramework):
@@ -29,7 +30,7 @@ class LoadblockTest(GeraniumTestFramework):
 
     def run_test(self):
         self.nodes[1].setnetworkactive(state=False)
-        self.nodes[0].generate(COINBASE_MATURITY)
+        self.nodes[0].generate(100)
 
         # Parsing the url of our node to get settings for config file
         data_dir = self.nodes[0].datadir
@@ -72,8 +73,9 @@ class LoadblockTest(GeraniumTestFramework):
                        check=True)
 
         self.log.info("Restart second, unsynced node with bootstrap file")
-        self.restart_node(1, extra_args=["-loadblock=" + bootstrap_file])
-        assert_equal(self.nodes[1].getblockcount(), 100)  # start_node is blocking on all block files being imported
+        self.stop_node(1)
+        self.start_node(1, ["-loadblock=" + bootstrap_file])
+        wait_until(lambda: self.nodes[1].getblockcount() == 100)
 
         assert_equal(self.nodes[1].getblockchaininfo()['blocks'], 100)
         assert_equal(self.nodes[0].getbestblockhash(), self.nodes[1].getbestblockhash())

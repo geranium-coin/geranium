@@ -1,4 +1,4 @@
-// Copyright (c) 2011-2020 The Geranium Core developers
+// Copyright (c) 2011-2019 The Geranium Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -12,18 +12,11 @@
 #include <qt/optionsmodel.h>
 #include <qt/platformstyle.h>
 #include <qt/transactionfilterproxy.h>
-#include <qt/transactionoverviewwidget.h>
 #include <qt/transactiontablemodel.h>
 #include <qt/walletmodel.h>
 
 #include <QAbstractItemDelegate>
-#include <QApplication>
-#include <QDateTime>
 #include <QPainter>
-#include <QStatusTipEvent>
-
-#include <algorithm>
-#include <map>
 
 #define DECORATION_SIZE 54
 #define NUM_ITEMS 5
@@ -38,11 +31,11 @@ public:
         QAbstractItemDelegate(parent), unit(GeraniumUnits::GEAM),
         platformStyle(_platformStyle)
     {
-        connect(this, &TxViewDelegate::width_changed, this, &TxViewDelegate::sizeHintChanged);
+
     }
 
     inline void paint(QPainter *painter, const QStyleOptionViewItem &option,
-                      const QModelIndex &index ) const override
+                      const QModelIndex &index ) const
     {
         painter->save();
 
@@ -69,17 +62,16 @@ public:
             foreground = brush.color();
         }
 
-        if (index.data(TransactionTableModel::WatchonlyRole).toBool()) {
-            QIcon iconWatchonly = qvariant_cast<QIcon>(index.data(TransactionTableModel::WatchonlyDecorationRole));
-            QRect watchonlyRect(addressRect.left(), addressRect.top(), 16, addressRect.height());
-            iconWatchonly = platformStyle->TextColorIcon(iconWatchonly);
-            iconWatchonly.paint(painter, watchonlyRect);
-            addressRect.setLeft(addressRect.left() + watchonlyRect.width() + 5);
-        }
-
         painter->setPen(foreground);
         QRect boundingRect;
-        painter->drawText(addressRect, Qt::AlignLeft | Qt::AlignVCenter, address, &boundingRect);
+        painter->drawText(addressRect, Qt::AlignLeft|Qt::AlignVCenter, address, &boundingRect);
+
+        if (index.data(TransactionTableModel::WatchonlyRole).toBool())
+        {
+            QIcon iconWatchonly = qvariant_cast<QIcon>(index.data(TransactionTableModel::WatchonlyDecorationRole));
+            QRect watchonlyRect(boundingRect.right() + 5, mainRect.top()+ypad+halfheight, 16, halfheight);
+            iconWatchonly.paint(painter, watchonlyRect);
+        }
 
         if(amount < 0)
         {
@@ -94,48 +86,28 @@ public:
             foreground = option.palette.color(QPalette::Text);
         }
         painter->setPen(foreground);
-        QString amountText = GeraniumUnits::formatWithUnit(unit, amount, true, GeraniumUnits::SeparatorStyle::ALWAYS);
+        QString amountText = GeraniumUnits::formatWithUnit(unit, amount, true, GeraniumUnits::separatorAlways);
         if(!confirmed)
         {
             amountText = QString("[") + amountText + QString("]");
         }
-
-        QRect amount_bounding_rect;
-        painter->drawText(amountRect, Qt::AlignRight | Qt::AlignVCenter, amountText, &amount_bounding_rect);
+        painter->drawText(amountRect, Qt::AlignRight|Qt::AlignVCenter, amountText);
 
         painter->setPen(option.palette.color(QPalette::Text));
-        QRect date_bounding_rect;
-        painter->drawText(amountRect, Qt::AlignLeft | Qt::AlignVCenter, GUIUtil::dateTimeStr(date), &date_bounding_rect);
-
-        // 0.4*date_bounding_rect.width() is used to visually distinguish a date from an amount.
-        const int minimum_width = 1.4 * date_bounding_rect.width() + amount_bounding_rect.width();
-        const auto search = m_minimum_width.find(index.row());
-        if (search == m_minimum_width.end() || search->second != minimum_width) {
-            m_minimum_width[index.row()] = minimum_width;
-            Q_EMIT width_changed(index);
-        }
+        painter->drawText(amountRect, Qt::AlignLeft|Qt::AlignVCenter, GUIUtil::dateTimeStr(date));
 
         painter->restore();
     }
 
-    inline QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const override
+    inline QSize sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const
     {
-        const auto search = m_minimum_width.find(index.row());
-        const int minimum_text_width = search == m_minimum_width.end() ? 0 : search->second;
-        return {DECORATION_SIZE + 8 + minimum_text_width, DECORATION_SIZE};
+        return QSize(DECORATION_SIZE, DECORATION_SIZE);
     }
 
     int unit;
+    const PlatformStyle *platformStyle;
 
-Q_SIGNALS:
-    //! An intermediate signal for emitting from the `paint() const` member function.
-    void width_changed(const QModelIndex& index) const;
-
-private:
-    const PlatformStyle* platformStyle;
-    mutable std::map<int, int> m_minimum_width;
 };
-
 #include <qt/overviewpage.moc>
 
 OverviewPage::OverviewPage(const PlatformStyle *platformStyle, QWidget *parent) :
@@ -143,7 +115,6 @@ OverviewPage::OverviewPage(const PlatformStyle *platformStyle, QWidget *parent) 
     ui(new Ui::OverviewPage),
     clientModel(nullptr),
     walletModel(nullptr),
-    m_platform_style{platformStyle},
     txdelegate(new TxViewDelegate(platformStyle, this))
 {
     ui->setupUi(this);
@@ -151,7 +122,8 @@ OverviewPage::OverviewPage(const PlatformStyle *platformStyle, QWidget *parent) 
     m_balances.balance = -1;
 
     // use a SingleColorIcon for the "out of sync warning" icon
-    QIcon icon = m_platform_style->SingleColorIcon(QStringLiteral(":/icons/warning"));
+    QIcon icon = platformStyle->SingleColorIcon(":/icons/warning");
+    icon.addPixmap(icon.pixmap(QSize(64,64), QIcon::Normal), QIcon::Disabled); // also set the disabled icon because we are using a disabled QPushButton to work around missing HiDPI support of QLabel (https://bugreports.qt.io/browse/QTBUG-42503)
     ui->labelTransactionsStatus->setIcon(icon);
     ui->labelWalletStatus->setIcon(icon);
 
@@ -161,12 +133,12 @@ OverviewPage::OverviewPage(const PlatformStyle *platformStyle, QWidget *parent) 
     ui->listTransactions->setMinimumHeight(NUM_ITEMS * (DECORATION_SIZE + 2));
     ui->listTransactions->setAttribute(Qt::WA_MacShowFocusRect, false);
 
-    connect(ui->listTransactions, &TransactionOverviewWidget::clicked, this, &OverviewPage::handleTransactionClicked);
+    connect(ui->listTransactions, &QListView::clicked, this, &OverviewPage::handleTransactionClicked);
 
     // start with displaying the "out of sync" warnings
     showOutOfSyncWarning(true);
-    connect(ui->labelWalletStatus, &QPushButton::clicked, this, &OverviewPage::outOfSyncWarningClicked);
-    connect(ui->labelTransactionsStatus, &QPushButton::clicked, this, &OverviewPage::outOfSyncWarningClicked);
+    connect(ui->labelWalletStatus, &QPushButton::clicked, this, &OverviewPage::handleOutOfSyncWarningClicks);
+    connect(ui->labelTransactionsStatus, &QPushButton::clicked, this, &OverviewPage::handleOutOfSyncWarningClicks);
 }
 
 void OverviewPage::handleTransactionClicked(const QModelIndex &index)
@@ -175,19 +147,9 @@ void OverviewPage::handleTransactionClicked(const QModelIndex &index)
         Q_EMIT transactionClicked(filter->mapToSource(index));
 }
 
-void OverviewPage::setPrivacy(bool privacy)
+void OverviewPage::handleOutOfSyncWarningClicks()
 {
-    m_privacy = privacy;
-    if (m_balances.balance != -1) {
-        setBalance(m_balances);
-    }
-
-    ui->listTransactions->setVisible(!m_privacy);
-
-    const QString status_tip = m_privacy ? tr("Privacy mode activated for the Overview tab. To unmask the values, uncheck Settings->Mask values.") : "";
-    setStatusTip(status_tip);
-    QStatusTipEvent event(status_tip);
-    QApplication::sendEvent(this, &event);
+    Q_EMIT outOfSyncWarningClicked();
 }
 
 OverviewPage::~OverviewPage()
@@ -199,27 +161,20 @@ void OverviewPage::setBalance(const interfaces::WalletBalances& balances)
 {
     int unit = walletModel->getOptionsModel()->getDisplayUnit();
     m_balances = balances;
-    if (walletModel->wallet().isLegacy()) {
-        if (walletModel->wallet().privateKeysDisabled()) {
-            ui->labelBalance->setText(GeraniumUnits::formatWithPrivacy(unit, balances.watch_only_balance, GeraniumUnits::SeparatorStyle::ALWAYS, m_privacy));
-            ui->labelUnconfirmed->setText(GeraniumUnits::formatWithPrivacy(unit, balances.unconfirmed_watch_only_balance, GeraniumUnits::SeparatorStyle::ALWAYS, m_privacy));
-            ui->labelImmature->setText(GeraniumUnits::formatWithPrivacy(unit, balances.immature_watch_only_balance, GeraniumUnits::SeparatorStyle::ALWAYS, m_privacy));
-            ui->labelTotal->setText(GeraniumUnits::formatWithPrivacy(unit, balances.watch_only_balance + balances.unconfirmed_watch_only_balance + balances.immature_watch_only_balance, GeraniumUnits::SeparatorStyle::ALWAYS, m_privacy));
-        } else {
-            ui->labelBalance->setText(GeraniumUnits::formatWithPrivacy(unit, balances.balance, GeraniumUnits::SeparatorStyle::ALWAYS, m_privacy));
-            ui->labelUnconfirmed->setText(GeraniumUnits::formatWithPrivacy(unit, balances.unconfirmed_balance, GeraniumUnits::SeparatorStyle::ALWAYS, m_privacy));
-            ui->labelImmature->setText(GeraniumUnits::formatWithPrivacy(unit, balances.immature_balance, GeraniumUnits::SeparatorStyle::ALWAYS, m_privacy));
-            ui->labelTotal->setText(GeraniumUnits::formatWithPrivacy(unit, balances.balance + balances.unconfirmed_balance + balances.immature_balance, GeraniumUnits::SeparatorStyle::ALWAYS, m_privacy));
-            ui->labelWatchAvailable->setText(GeraniumUnits::formatWithPrivacy(unit, balances.watch_only_balance, GeraniumUnits::SeparatorStyle::ALWAYS, m_privacy));
-            ui->labelWatchPending->setText(GeraniumUnits::formatWithPrivacy(unit, balances.unconfirmed_watch_only_balance, GeraniumUnits::SeparatorStyle::ALWAYS, m_privacy));
-            ui->labelWatchImmature->setText(GeraniumUnits::formatWithPrivacy(unit, balances.immature_watch_only_balance, GeraniumUnits::SeparatorStyle::ALWAYS, m_privacy));
-            ui->labelWatchTotal->setText(GeraniumUnits::formatWithPrivacy(unit, balances.watch_only_balance + balances.unconfirmed_watch_only_balance + balances.immature_watch_only_balance, GeraniumUnits::SeparatorStyle::ALWAYS, m_privacy));
-        }
+    if (walletModel->wallet().privateKeysDisabled()) {
+        ui->labelBalance->setText(GeraniumUnits::formatWithUnit(unit, balances.watch_only_balance, false, GeraniumUnits::separatorAlways));
+        ui->labelUnconfirmed->setText(GeraniumUnits::formatWithUnit(unit, balances.unconfirmed_watch_only_balance, false, GeraniumUnits::separatorAlways));
+        ui->labelImmature->setText(GeraniumUnits::formatWithUnit(unit, balances.immature_watch_only_balance, false, GeraniumUnits::separatorAlways));
+        ui->labelTotal->setText(GeraniumUnits::formatWithUnit(unit, balances.watch_only_balance + balances.unconfirmed_watch_only_balance + balances.immature_watch_only_balance, false, GeraniumUnits::separatorAlways));
     } else {
-        ui->labelBalance->setText(GeraniumUnits::formatWithPrivacy(unit, balances.balance, GeraniumUnits::SeparatorStyle::ALWAYS, m_privacy));
-        ui->labelUnconfirmed->setText(GeraniumUnits::formatWithPrivacy(unit, balances.unconfirmed_balance, GeraniumUnits::SeparatorStyle::ALWAYS, m_privacy));
-        ui->labelImmature->setText(GeraniumUnits::formatWithPrivacy(unit, balances.immature_balance, GeraniumUnits::SeparatorStyle::ALWAYS, m_privacy));
-        ui->labelTotal->setText(GeraniumUnits::formatWithPrivacy(unit, balances.balance + balances.unconfirmed_balance + balances.immature_balance, GeraniumUnits::SeparatorStyle::ALWAYS, m_privacy));
+        ui->labelBalance->setText(GeraniumUnits::formatWithUnit(unit, balances.balance, false, GeraniumUnits::separatorAlways));
+        ui->labelUnconfirmed->setText(GeraniumUnits::formatWithUnit(unit, balances.unconfirmed_balance, false, GeraniumUnits::separatorAlways));
+        ui->labelImmature->setText(GeraniumUnits::formatWithUnit(unit, balances.immature_balance, false, GeraniumUnits::separatorAlways));
+        ui->labelTotal->setText(GeraniumUnits::formatWithUnit(unit, balances.balance + balances.unconfirmed_balance + balances.immature_balance, false, GeraniumUnits::separatorAlways));
+        ui->labelWatchAvailable->setText(GeraniumUnits::formatWithUnit(unit, balances.watch_only_balance, false, GeraniumUnits::separatorAlways));
+        ui->labelWatchPending->setText(GeraniumUnits::formatWithUnit(unit, balances.unconfirmed_watch_only_balance, false, GeraniumUnits::separatorAlways));
+        ui->labelWatchImmature->setText(GeraniumUnits::formatWithUnit(unit, balances.immature_watch_only_balance, false, GeraniumUnits::separatorAlways));
+        ui->labelWatchTotal->setText(GeraniumUnits::formatWithUnit(unit, balances.watch_only_balance + balances.unconfirmed_watch_only_balance + balances.immature_watch_only_balance, false, GeraniumUnits::separatorAlways));
     }
     // only show immature (newly mined) balance if it's non-zero, so as not to complicate things
     // for the non-mining users
@@ -253,9 +208,6 @@ void OverviewPage::setClientModel(ClientModel *model)
         // Show warning, for example if this is a prerelease version
         connect(model, &ClientModel::alertsChanged, this, &OverviewPage::updateAlerts);
         updateAlerts(model->getStatusBarWarnings());
-
-        connect(model->getOptionsModel(), &OptionsModel::useEmbeddedMonospacedFontChanged, this, &OverviewPage::setMonospacedFont);
-        setMonospacedFont(model->getOptionsModel()->getUseEmbeddedMonospacedFont());
     }
 }
 
@@ -294,17 +246,6 @@ void OverviewPage::setWalletModel(WalletModel *model)
     updateDisplayUnit();
 }
 
-void OverviewPage::changeEvent(QEvent* e)
-{
-    if (e->type() == QEvent::PaletteChange) {
-        QIcon icon = m_platform_style->SingleColorIcon(QStringLiteral(":/icons/warning"));
-        ui->labelTransactionsStatus->setIcon(icon);
-        ui->labelWalletStatus->setIcon(icon);
-    }
-
-    QWidget::changeEvent(e);
-}
-
 void OverviewPage::updateDisplayUnit()
 {
     if(walletModel && walletModel->getOptionsModel())
@@ -330,18 +271,4 @@ void OverviewPage::showOutOfSyncWarning(bool fShow)
 {
     ui->labelWalletStatus->setVisible(fShow);
     ui->labelTransactionsStatus->setVisible(fShow);
-}
-
-void OverviewPage::setMonospacedFont(bool use_embedded_font)
-{
-    QFont f = GUIUtil::fixedPitchFont(use_embedded_font);
-    f.setWeight(QFont::Bold);
-    ui->labelBalance->setFont(f);
-    ui->labelUnconfirmed->setFont(f);
-    ui->labelImmature->setFont(f);
-    ui->labelTotal->setFont(f);
-    ui->labelWatchAvailable->setFont(f);
-    ui->labelWatchPending->setFont(f);
-    ui->labelWatchImmature->setFont(f);
-    ui->labelWatchTotal->setFont(f);
 }

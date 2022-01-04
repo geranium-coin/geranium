@@ -1,4 +1,4 @@
-// Copyright (c) 2011-2020 The Geranium Core developers
+// Copyright (c) 2011-2014 The Geranium Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -17,7 +17,7 @@ class GeraniumAddressEntryValidator : public QValidator
 public:
     explicit GeraniumAddressEntryValidator(QObject *parent);
 
-    State validate(QString &input, int &pos) const override;
+    State validate(QString &input, int &pos) const;
 };
 
 /** Geranium address widget validator, checks for a valid geranium address.
@@ -29,7 +29,7 @@ class GeraniumAddressCheckValidator : public QValidator
 public:
     explicit GeraniumAddressCheckValidator(QObject *parent);
 
-    State validate(QString &input, int &pos) const override;
+    State validate(QString &input, int &pos) const;
 };
 
 #endif // GERANIUM_QT_GERANIUMADDRESSVALIDATOR_H

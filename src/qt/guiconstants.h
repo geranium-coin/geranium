@@ -46,7 +46,6 @@ static const int TOOLTIP_WRAP_THRESHOLD = 80;
 #define QAPP_ORG_DOMAIN "geranium.org"
 #define QAPP_APP_NAME_DEFAULT "Geranium-Qt"
 #define QAPP_APP_NAME_TESTNET "Geranium-Qt-testnet"
-#define QAPP_APP_NAME_SIGNET "Geranium-Qt-signet"
 #define QAPP_APP_NAME_REGTEST "Geranium-Qt-regtest"
 
 /* One gigabyte (GB) in bytes */

@@ -9,7 +9,7 @@ The options known to work for building Geranium Core on Windows are:
 and is the platform used to build the Geranium Core Windows release binaries.
 * On Windows, using [Windows
 Subsystem for Linux (WSL)](https://docs.microsoft.com/windows/wsl/about) and the Mingw-w64 cross compiler tool chain.
-* On Windows, using a native compiler tool chain such as [Visual Studio](https://www.visualstudio.com). See [README.md](/build_msvc/README.md).
+* On Windows, using a native compiler tool chain such as [Visual Studio](https://www.visualstudio.com).
 
 Other options which may work, but which have not been extensively tested are (please contribute instructions):
 
@@ -72,7 +72,7 @@ If you want to build the windows installer with `make deploy` you need [NSIS](ht
 
 Acquire the source in the usual way:
 
-    git clone https://github.com/Manu-2009/geranium.git
+    git clone https://github.com/geranium/geranium.git
     cd geranium
 
 ## Building for 64-bit Windows
@@ -81,26 +81,9 @@ The first step is to install the mingw-w64 cross-compilation tool chain:
 
     sudo apt install g++-mingw-w64-x86-64
 
-Next, set the default `mingw32 g++` compiler option to POSIX<sup>[1](#footnote1)</sup>:
+Ubuntu Bionic 18.04 <sup>[1](#footnote1)</sup>:
 
-```
-sudo update-alternatives --config x86_64-w64-mingw32-g++
-```
-
-After running the above command, you should see output similar to that below.
-Choose the option that ends with `posix`.
-
-```
-There are 2 choices for the alternative x86_64-w64-mingw32-g++ (providing /usr/bin/x86_64-w64-mingw32-g++).
-
-  Selection    Path                                   Priority   Status
-------------------------------------------------------------
-  0            /usr/bin/x86_64-w64-mingw32-g++-win32   60        auto mode
-* 1            /usr/bin/x86_64-w64-mingw32-g++-posix   30        manual mode
-  2            /usr/bin/x86_64-w64-mingw32-g++-win32   60        manual mode
-
-Press <enter> to keep the current choice[*], or type selection number:
-```
+    sudo update-alternatives --config x86_64-w64-mingw32-g++ # Set the default mingw32 g++ compiler option to posix.
 
 Once the toolchain is installed the build steps are common:
 
@@ -108,22 +91,15 @@ Note that for WSL the Geranium Core source path MUST be somewhere in the default
 example /usr/src/geranium, AND not under /mnt/d/. If this is not the case the dependency autoconf scripts will fail.
 This means you cannot use a directory that is located directly on the host Windows file system to perform the build.
 
-Additional WSL Note: WSL support for [launching Win32 applications](https://docs.microsoft.com/en-us/archive/blogs/wsl/windows-and-ubuntu-interoperability#launching-win32-applications-from-within-wsl)
-results in `Autoconf` configure scripts being able to execute Windows Portable Executable files. This can cause
-unexpected behaviour during the build, such as Win32 error dialogs for missing libraries. The recommended approach
-is to temporarily disable WSL support for Win32 applications.
-
 Build using:
 
     PATH=$(echo "$PATH" | sed -e 's/:\/mnt.*//g') # strip out problematic Windows %PATH% imported var
-    sudo bash -c "echo 0 > /proc/sys/fs/binfmt_misc/status" # Disable WSL support for Win32 applications.
     cd depends
     make HOST=x86_64-w64-mingw32
     cd ..
-    ./autogen.sh
+    ./autogen.sh # not required when building from tarball
     CONFIG_SITE=$PWD/depends/x86_64-w64-mingw32/share/config.site ./configure --prefix=/
-    make # use "-j N" for N parallel jobs
-    sudo bash -c "echo 1 > /proc/sys/fs/binfmt_misc/status" # Enable WSL support for Win32 applications.
+    make
 
 ## Depends system
 

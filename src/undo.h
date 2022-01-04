@@ -1,5 +1,5 @@
 // Copyright (c) 2009-2010 Gem Nakamoto
-// Copyright (c) 2009-2020 The Geranium Core developers
+// Copyright (c) 2009-2018 The Geranium Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 

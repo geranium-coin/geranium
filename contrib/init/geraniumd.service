@@ -11,14 +11,10 @@
 
 [Unit]
 Description=Geranium daemon
-Documentation=https://github.com/geranium/geranium/blob/master/doc/init.md
-
-# https://www.freedesktop.org/wiki/Software/systemd/NetworkTarget/
-After=network-online.target
-Wants=network-online.target
+After=network.target
 
 [Service]
-ExecStart=/usr/bin/geraniumd -daemonwait \
+ExecStart=/usr/bin/geraniumd -daemon \
                             -pid=/run/geraniumd/geraniumd.pid \
                             -conf=/etc/geranium/geranium.conf \
                             -datadir=/var/lib/geraniumd
@@ -33,7 +29,6 @@ ExecStartPre=/bin/chgrp geranium /etc/geranium
 Type=forking
 PIDFile=/run/geraniumd/geraniumd.pid
 Restart=on-failure
-TimeoutStartSec=infinity
 TimeoutStopSec=600
 
 # Directory creation and permissions

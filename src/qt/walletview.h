@@ -1,4 +1,4 @@
-// Copyright (c) 2011-2020 The Geranium Core developers
+// Copyright (c) 2011-2019 The Geranium Core developers
 // Distributed under the MIT software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
@@ -83,8 +83,6 @@ public Q_SLOTS:
     void gotoSignMessageTab(QString addr = "");
     /** Show Sign/Verify Message dialog and switch to verify message tab */
     void gotoVerifyMessageTab(QString addr = "");
-    /** Load Partially Signed Geranium Transaction */
-    void gotoLoadPSBT(bool from_clipboard = false);
 
     /** Show incoming transaction notification for new transactions.
 
@@ -92,7 +90,7 @@ public Q_SLOTS:
     */
     void processNewTransaction(const QModelIndex& parent, int start, int /*end*/);
     /** Encrypt the wallet */
-    void encryptWallet();
+    void encryptWallet(bool status);
     /** Backup the wallet */
     void backupWallet();
     /** Change encrypted wallet passphrase */
@@ -111,8 +109,10 @@ public Q_SLOTS:
     /** Show progress dialog e.g. for rescan */
     void showProgress(const QString &title, int nProgress);
 
+    /** User has requested more information about the out of sync state */
+    void requestedSyncWarningInfo();
+
 Q_SIGNALS:
-    void setPrivacy(bool privacy);
     void transactionClicked();
     void coinsSent();
     /**  Fired when a message should be reported to the user */

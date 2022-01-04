@@ -16,10 +16,6 @@ if BUILD_GERANIUM_TX
   dist_man1_MANS+=geranium-tx.1
 endif
 
-if BUILD_GERANIUM_UTIL
-  dist_man1_MANS+=geranium-util.1
-endif
-
 if ENABLE_WALLET
 if BUILD_GERANIUM_WALLET
   dist_man1_MANS+=geranium-wallet.1

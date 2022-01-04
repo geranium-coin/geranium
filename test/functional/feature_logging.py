@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright (c) 2017-2020 The Geranium Core developers
+# Copyright (c) 2017-2019 The Geranium Core developers
 # Distributed under the MIT software license, see the accompanying
 # file COPYING or http://www.opensource.org/licenses/mit-license.php.
 """Test debug logging."""
@@ -67,7 +67,8 @@ class LoggingTest(GeraniumTestFramework):
         assert not os.path.isfile(default_log_path)
 
         # just sanity check no crash here
-        self.restart_node(0, ["-debuglogfile=%s" % os.devnull])
+        self.stop_node(0)
+        self.start_node(0, ["-debuglogfile=%s" % os.devnull])
 
 
 if __name__ == '__main__':

@@ -2,7 +2,7 @@
 name: "geranium-win-signer"
 distro: "ubuntu"
 suites:
-- "focal"
+- "bionic"
 architectures:
 - "amd64"
 packages:

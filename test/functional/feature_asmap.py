@@ -36,6 +36,7 @@ def expected_messages(filename):
 
 class AsmapTest(GeraniumTestFramework):
     def set_test_params(self):
+        self.setup_clean_chain = False
         self.num_nodes = 1
 
     def test_without_asmap_arg(self):

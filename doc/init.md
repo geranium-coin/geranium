@@ -20,9 +20,9 @@ The macOS configuration assumes geraniumd will be set up for the current user.
 Configuration
 ---------------------------------
 
-Running geraniumd as a daemon does not require any manual configuration. You may
-set the `rpcauth` setting in the `geranium.conf` configuration file to override
-the default behaviour of using a special cookie for authentication.
+At a bare minimum, geraniumd requires that the rpcpassword setting be set
+when running as a daemon.  If the configuration file does not exist or this
+setting is not set, geraniumd will shut down promptly after startup.
 
 This password does not have to be remembered or typed as it is mostly used
 as a fixed token that geraniumd and client programs read from the configuration
@@ -53,12 +53,11 @@ Paths
 
 All three configurations assume several paths that might need to be adjusted.
 
-    Binary:              /usr/bin/geraniumd
-    Configuration file:  /etc/geranium/geranium.conf
-    Data directory:      /var/lib/geraniumd
-    PID file:            /var/run/geraniumd/geraniumd.pid (OpenRC and Upstart) or
-                         /run/geraniumd/geraniumd.pid (systemd)
-    Lock file:           /var/lock/subsys/geraniumd (CentOS)
+Binary:              `/usr/bin/geraniumd`
+Configuration file:  `/etc/geranium/geranium.conf`
+Data directory:      `/var/lib/geraniumd`
+PID file:            `/var/run/geraniumd/geraniumd.pid` (OpenRC and Upstart) or `/run/geraniumd/geraniumd.pid` (systemd)
+Lock file:           `/var/lock/subsys/geraniumd` (CentOS)
 
 The PID directory (if applicable) and data directory should both be owned by the
 geranium user and group. It is advised for security reasons to make the
@@ -84,10 +83,10 @@ OpenRC).
 
 ### macOS
 
-    Binary:              /usr/local/bin/geraniumd
-    Configuration file:  ~/Library/Application Support/Geranium/geranium.conf
-    Data directory:      ~/Library/Application Support/Geranium
-    Lock file:           ~/Library/Application Support/Geranium/.lock
+Binary:              `/usr/local/bin/geraniumd`
+Configuration file:  `~/Library/Application Support/Geranium/geranium.conf`
+Data directory:      `~/Library/Application Support/Geranium`
+Lock file:           `~/Library/Application Support/Geranium/.lock`
 
 Installing Service Configuration
 -----------------------------------
